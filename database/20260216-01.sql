@@ -16,36 +16,34 @@ CREATE TABLE VILLES (
     FOREIGN KEY (id_region) REFERENCES REGION(id_region) ON DELETE CASCADE
 );
 
--- Table des Catégories de Besoins
-CREATE TABLE CATEGORIE_BESOIN (
-    id_categorie INT AUTO_INCREMENT PRIMARY KEY,
-    nom_categorie VARCHAR(100) NOT NULL
+-- Table des Types de Besoins
+CREATE TABLE TYPE_BESOIN (
+    id_type_besoin INT AUTO_INCREMENT PRIMARY KEY,
+    libelle VARCHAR(100) NOT NULL
 );
 
--- Table des Besoins (SIMPLIFIÉ)
+-- Table des Besoins
 CREATE TABLE BESOINS (
     id_besoin INT AUTO_INCREMENT PRIMARY KEY,
     id_ville INT,
-    demande VARCHAR(255) NOT NULL,
-    id_categorie INT,
+    id_type_besoin INT,
     quantite INT NOT NULL,
     prix_unitaire DECIMAL(10, 2) NOT NULL,
     date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_ville) REFERENCES VILLES(id_ville) ON DELETE CASCADE,
-    FOREIGN KEY (id_categorie) REFERENCES CATEGORIE_BESOIN(id_categorie) ON DELETE CASCADE
+    FOREIGN KEY (id_type_besoin) REFERENCES TYPE_BESOIN(id_type_besoin) ON DELETE CASCADE
 );
 
 -- Table des Dons
 CREATE TABLE DONS (
     id_don INT AUTO_INCREMENT PRIMARY KEY,
-    id_ville INT,
-    demande VARCHAR(255) NOT NULL,
-    id_categorie INT,
+    id_ville INT NULL,
+    id_type_besoin INT,
     quantite INT NOT NULL,
     montant DECIMAL(10, 2) NOT NULL,
     date_don DATE NOT NULL,
-    FOREIGN KEY (id_ville) REFERENCES VILLES(id_ville) ON DELETE CASCADE,
-    FOREIGN KEY (id_categorie) REFERENCES CATEGORIE_BESOIN(id_categorie) ON DELETE CASCADE
+    FOREIGN KEY (id_ville) REFERENCES VILLES(id_ville) ON DELETE SET NULL,
+    FOREIGN KEY (id_type_besoin) REFERENCES TYPE_BESOIN(id_type_besoin) ON DELETE CASCADE
 );
 
 -- Table des Distributions

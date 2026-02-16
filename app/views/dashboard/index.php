@@ -393,9 +393,9 @@
                                             <option value="">Toutes les catégories</option>
                                             <?php if (isset($categories) && !empty($categories)): ?>
                                                 <?php foreach ($categories as $categorie): ?>
-                                                    <option value="<?= $categorie['id_categorie'] ?>" 
-                                                            <?= (isset($_GET['categorie']) && $_GET['categorie'] == $categorie['id_categorie']) ? 'selected' : '' ?>>
-                                                        <?= htmlspecialchars($categorie['nom_categorie']) ?>
+                                                    <option value="<?= $categorie['id_type_besoin'] ?>" 
+                                                            <?= (isset($_GET['categorie']) && $_GET['categorie'] == $categorie['id_type_besoin']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($categorie['libelle']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -501,16 +501,10 @@
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($ville['besoins'] as $besoin): ?>
-                                                        <?php
-                                                            $cat_badge_class = 'bg-secondary';
-                                                            if ($besoin['nom_categorie'] === 'Nature') $cat_badge_class = 'category-badge-nature';
-                                                            elseif ($besoin['nom_categorie'] === 'Matériaux') $cat_badge_class = 'category-badge-materiaux';
-                                                            elseif ($besoin['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
-                                                        ?>
                                                         <tr>
                                                             <td>
-                                                                <span class="badge <?= $cat_badge_class ?> badge-large">
-                                                                    <?= htmlspecialchars($besoin['nom_categorie']) ?>
+                                                                <span class="badge bg-warning badge-large">
+                                                                    <?= htmlspecialchars($besoin['type_besoin']) ?>
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
@@ -552,16 +546,10 @@
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($ville['dons_recus'] as $don): ?>
-                                                        <?php
-                                                            $cat_badge_class = 'bg-secondary';
-                                                            if ($don['nom_categorie'] === 'Nature') $cat_badge_class = 'category-badge-nature';
-                                                            elseif ($don['nom_categorie'] === 'Matériaux') $cat_badge_class = 'category-badge-materiaux';
-                                                            elseif ($don['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
-                                                        ?>
                                                         <tr>
                                                             <td>
-                                                                <span class="badge <?= $cat_badge_class ?> badge-large">
-                                                                    <?= htmlspecialchars($don['nom_categorie']) ?>
+                                                                <span class="badge bg-success badge-large">
+                                                                    <?= htmlspecialchars($don['type_besoin']) ?>
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">

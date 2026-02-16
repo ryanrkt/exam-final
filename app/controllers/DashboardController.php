@@ -1,4 +1,8 @@
 <?php
+namespace app\controllers;
+
+use Flight;
+use PDO;
 
 class DashboardController {
     
@@ -53,7 +57,7 @@ class DashboardController {
     }
     
     private function getCategories($db) {
-        $stmt = $db->query("SELECT * FROM CATEGORIE_BESOIN ORDER BY nom_categorie");
+        $stmt = $db->query("SELECT * FROM TYPE_BESOIN ORDER BY libelle");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
@@ -71,7 +75,7 @@ class DashboardController {
             $params[':ville'] = $filter_ville;
         }
         if ($filter_categorie !== null) {
-            $where_conditions[] = "c.id_categorie = :categorie";
+            $where_conditions[] = "t.id_type_besoin = :categorie";
             $params[':categorie'] = $filter_categorie;
         }
         
@@ -85,7 +89,7 @@ class DashboardController {
                 b.quantite,
                 b.prix_unitaire,
                 b.date_creation,
-                c.nom_categorie,
+                t.libelle as type_besoin,
                 COALESCE(
                     (SELECT SUM(d2.quantite) 
                      FROM DISTRIBUTIONS dist2 
@@ -145,14 +149,13 @@ class DashboardController {
         $sql_dons = "
             SELECT 
                 v.id_ville,
-                d.demande,
-                c.nom_categorie,
+                t.libelle as type_besoin,
                 d.quantite,
                 d.montant,
                 d.date_don
             FROM DONS d
             JOIN VILLES v ON d.id_ville = v.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             {$where_clause}
             ORDER BY d.date_don DESC, d.id_don ASC
         ";
