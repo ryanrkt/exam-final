@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Test Simulation - BNGRC</title>
+    <meta charset="utf-8" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        .primary { background: #3498db; color: white; border: none; }
+        #status-message { margin: 20px 0; padding: 15px; display: none; }
+        #console-log { background: #f0f0f0; padding: 10px; margin: 20px 0; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Test de Simulation</h1>
+    <p>Cette page teste les boutons de simulation</p>
+    
+    <button id="run-sim" class="primary">Lancer la simulation</button>
+    <button id="reset-distributions">Réinitialiser</button>
+    
+    <div id="status-message"></div>
+    
+    <h3>Console Log:</h3>
+    <div id="console-log"></div>
+    
+    <h3>Historique:</h3>
+    <table border="1" id="history-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Affectations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="2" style="text-align: center;">Chargement...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <script>
+        // Console custom pour déboguer
+        const consoleDiv = document.getElementById('console-log');
+        function log(msg) {
+            console.log(msg);
+            consoleDiv.innerHTML += msg + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        log('Script chargé - ' + new Date().toLocaleTimeString());
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOMContentLoaded déclenché');
+            
+            const runSimButton = document.getElementById('run-sim');
+            const resetButton = document.getElementById('reset-distributions');
+            const historyTableBody = document.querySelector('#history-table tbody');
+            const statusMessage = document.getElementById('status-message');
+            
+            log('Boutons trouvés: run-sim=' + !!runSimButton + ', reset=' + !!resetButton);
+            
+            // Charger l'historique
+            log('Chargement de l\'historique...');
+            loadHistorique();
+            
+            // Bouton simulation
+            if (runSimButton) {
+                log('Ajout event listener sur bouton simulation');
+                runSimButton.addEventListener('click', function(e) {
+                    log('CLIC sur bouton simulation détecté!');
+                    executeSimulation();
+                });
+            }
+            
+            // Bouton reset
+            if (resetButton) {
+                log('Ajout event listener sur bouton reset');
+                resetButton.addEventListener('click', function(e) {
+                    log('CLIC sur bouton reset détecté!');
+                    if (confirm('Êtes-vous sûr de vouloir supprimer toutes les distributions ?')) {
+                        resetDistributions();
+                    }
+                });
+            }
+            
+            function executeSimulation() {
+                log('executeSimulation() appelée');
+                runSimButton.disabled = true;
+                runSimButton.textContent = 'Simulation en cours...';
+                hideStatus();
+                
+                log('Envoi requête POST /api/simulation/execute');
+                fetch('/api/simulation/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    log('Réponse reçue: ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    log('Données: ' + JSON.stringify(data));
+                    if (data.success) {
+                        showStatus('success', data.message);
+                        if (data.distributions && data.distributions.length > 0) {
+                            log('Distributions: ' + data.distributions.length);
+                        }
+                        loadHistorique();
+                    } else {
+                        showStatus('error', 'Erreur: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    log('ERREUR: ' + error);
+                    showStatus('error', 'Erreur lors de l\'exécution');
+                })
+                .finally(() => {
+                    runSimButton.disabled = false;
+                    runSimButton.textContent = 'Lancer la simulation';
+                });
+            }
+            
+            function resetDistributions() {
+                log('resetDistributions() appelée');
+                resetButton.disabled = true;
+                const originalText = resetButton.textContent;
+                resetButton.textContent = 'Réinitialisation...';
+                hideStatus();
+                
+                log('Envoi requête POST /api/simulation/reset');
+                fetch('/api/simulation/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    log('Réponse reçue: ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    log('Données: ' + JSON.stringify(data));
+                    if (data.success) {
+                        showStatus('success', data.message);
+                        loadHistorique();
+                    } else {
+                        showStatus('error', 'Erreur: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    log('ERREUR: ' + error);
+                    showStatus('error', 'Erreur lors de la réinitialisation');
+                })
+                .finally(() => {
+                    resetButton.disabled = false;
+                    resetButton.textContent = originalText;
+                });
+            }
+            
+            function showStatus(type, message) {
+                statusMessage.style.display = 'block';
+                statusMessage.className = 'box';
+                
+                if (type === 'success') {
+                    statusMessage.style.backgroundColor = '#d4edda';
+                    statusMessage.style.color = '#155724';
+                    statusMessage.style.border = '2px solid #c3e6cb';
+                } else if (type === 'error') {
+                    statusMessage.style.backgroundColor = '#f8d7da';
+                    statusMessage.style.color = '#721c24';
+                    statusMessage.style.border = '2px solid #f5c6cb';
+                }
+                
+                statusMessage.innerHTML = '<strong>' + message + '</strong>';
+            }
+            
+            function hideStatus() {
+                statusMessage.style.display = 'none';
+            }
+            
+            function loadHistorique() {
+                log('loadHistorique() appelée');
+                fetch('/api/simulation/historique')
+                .then(response => {
+                    log('Historique reçu: ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.distributions) {
+                        log('Distributions historique: ' + data.distributions.length);
+                        displayHistorique(data.distributions);
+                    }
+                })
+                .catch(error => {
+                    log('ERREUR historique: ' + error);
+                });
+            }
+            
+            function displayHistorique(distributions) {
+                historyTableBody.innerHTML = '';
+                
+                if (distributions.length === 0) {
+                    historyTableBody.innerHTML = '<tr><td colspan="2" style="text-align: center;">Aucune distribution</td></tr>';
+                    return;
+                }
+                
+                const groupedByDate = {};
+                distributions.forEach(d => {
+                    const date = d.date_distribution;
+                    if (!groupedByDate[date]) {
+                        groupedByDate[date] = [];
+                    }
+                    groupedByDate[date].push(d);
+                });
+                
+                const dates = Object.keys(groupedByDate).sort().reverse();
+                dates.forEach(date => {
+                    const dists = groupedByDate[date];
+                    const affectations = dists.map(d => {
+                        const villeDon = d.ville_don || 'Non assignée';
+                        return `${d.ville_besoin} (${d.besoin_type}, ${d.quantite_attribuee} unités) ← ${villeDon} (${d.don_type})`;
+                    }).join('<br>');
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${date}</td><td>${affectations}</td>`;
+                    historyTableBody.appendChild(row);
+                });
+            }
+            
+            log('Initialisation terminée');
+        });
+    </script>
+</body>
+</html>

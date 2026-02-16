@@ -1,9 +1,10 @@
 <?php
-
+namespace app\controllers;
 
 use app\models\Besoin;
 use app\models\Don;
 use app\models\Distribution;
+use Flight;
 
 class SimulationController {
     
@@ -71,11 +72,11 @@ class SimulationController {
                         
                         // Enregistrer la distribution effectuée
                         $distributions_effectuees[] = [
-                            'besoin' => $besoin['demande'],
+                            'besoin' => $besoin['type_besoin'],
                             'ville_besoin' => $besoin['nom_ville'],
                             'quantite' => $quantite_a_distribuer,
-                            'don' => $don['demande'],
-                            'ville_don' => $don['nom_ville'],
+                            'don' => $don['type_besoin'],
+                            'ville_don' => $don['nom_ville'] ?? 'Non assignée',
                             'date_besoin' => $besoin['date_creation'],
                             'date_don' => $don['date_don']
                         ];
@@ -122,6 +123,29 @@ class SimulationController {
             Flight::json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de l\'historique: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Réinitialiser toutes les distributions pour recommencer la simulation
+     */
+    public function resetDistributions() {
+        $db = Flight::db();
+        
+        try {
+            $stmt = $db->prepare("DELETE FROM DISTRIBUTIONS");
+            $stmt->execute();
+            
+            Flight::json([
+                'success' => true,
+                'message' => 'Toutes les distributions ont été supprimées. Vous pouvez relancer la simulation.'
+            ]);
+            
+        } catch (Exception $e) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Erreur lors de la réinitialisation: ' . $e->getMessage()
             ], 500);
         }
     }

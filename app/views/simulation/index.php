@@ -26,7 +26,10 @@
           <p>Cliquez sur le bouton ci-dessous pour lancer la simulation de distribution automatique des dons vers les besoins.</p>
           <ul class="actions">
             <li><button id="run-sim" class="button primary">Lancer la simulation de distribution</button></li>
+            <li><button id="reset-distributions" class="button">Réinitialiser les distributions</button></li>
           </ul>
+          
+          <div id="status-message" style="display: none; margin-top: 20px;" class="box"></div>
           
           <hr />
           
@@ -52,7 +55,7 @@
       <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
     </div>
-    <script src="/assets/js/simple.js"></script>
-    <script src="/assets/js/simulation.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simulation.js"></script>
   </body>
 </html>
