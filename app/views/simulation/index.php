@@ -19,7 +19,6 @@
       </div></div>
 
       <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
-      <?php include __DIR__ . '/../layouts/footer.php'; ?>
 
     </div>
     <script src="/assets/js/simple.js"></script>
