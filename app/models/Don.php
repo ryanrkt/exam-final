@@ -54,5 +54,47 @@ class Don {
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM DONS WHERE id_don = ?");
         return $stmt->execute([$id]);
+    /**
+     * Récupérer tous les dons avec leur quantité disponible (non utilisée)
+     * Triés par ordre chronologique (date_don ASC)
+     */
+    public function getDonsDisponibles() {
+        $stmt = $this->db->query("
+            SELECT d.*, 
+                   v.nom_ville,
+                   r.nom_region,
+                   c.nom_categorie,
+                   d.quantite as quantite_totale,
+                   COALESCE(SUM(dist.quantite_attribuee), 0) as quantite_utilisee,
+                   (d.quantite - COALESCE(SUM(dist.quantite_attribuee), 0)) as quantite_disponible
+            FROM DONS d
+            JOIN VILLES v ON d.id_ville = v.id_ville
+            JOIN REGION r ON v.id_region = r.id_region
+            JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN DISTRIBUTIONS dist ON d.id_don = dist.id_don
+            GROUP BY d.id_don
+            HAVING quantite_disponible > 0
+            ORDER BY d.date_don ASC, d.id_don ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Récupérer un don spécifique
+     */
+    public function getById($id_don) {
+        $stmt = $this->db->prepare("
+            SELECT d.*, 
+                   v.nom_ville,
+                   r.nom_region,
+                   c.nom_categorie
+            FROM DONS d
+            JOIN VILLES v ON d.id_ville = v.id_ville
+            JOIN REGION r ON v.id_region = r.id_region
+            JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            WHERE d.id_don = ?
+        ");
+        $stmt->execute([$id_don]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

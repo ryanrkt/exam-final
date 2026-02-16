@@ -69,5 +69,47 @@ class Besoin {
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM BESOINS WHERE id_besoin = ?");
         return $stmt->execute([$id]);
+    /**
+     * Récupérer tous les besoins avec leur quantité restante (non satisfaite)
+     * Triés par ordre chronologique (date_creation ASC)
+     */
+    public function getBesoinsNonSatisfaits() {
+        $stmt = $this->db->query("
+            SELECT b.*, 
+                   v.nom_ville,
+                   r.nom_region,
+                   c.nom_categorie,
+                   b.quantite as quantite_demandee,
+                   COALESCE(SUM(d.quantite_attribuee), 0) as quantite_distribuee,
+                   (b.quantite - COALESCE(SUM(d.quantite_attribuee), 0)) as quantite_restante
+            FROM BESOINS b
+            JOIN VILLES v ON b.id_ville = v.id_ville
+            JOIN REGION r ON v.id_region = r.id_region
+            JOIN CATEGORIE_BESOIN c ON b.id_categorie = c.id_categorie
+            LEFT JOIN DISTRIBUTIONS d ON b.id_besoin = d.id_besoin
+            GROUP BY b.id_besoin
+            HAVING quantite_restante > 0
+            ORDER BY b.date_creation ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Récupérer un besoin spécifique
+     */
+    public function getById($id_besoin) {
+        $stmt = $this->db->prepare("
+            SELECT b.*, 
+                   v.nom_ville,
+                   r.nom_region,
+                   c.nom_categorie
+            FROM BESOINS b
+            JOIN VILLES v ON b.id_ville = v.id_ville
+            JOIN REGION r ON v.id_region = r.id_region
+            JOIN CATEGORIE_BESOIN c ON b.id_categorie = c.id_categorie
+            WHERE b.id_besoin = ?
+        ");
+        $stmt->execute([$id_besoin]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
