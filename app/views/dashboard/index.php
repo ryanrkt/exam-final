@@ -140,6 +140,21 @@
                 padding: 25px;
             }
 
+            .section-divider {
+                border-left: 4px solid #667eea;
+                padding-left: 20px;
+                margin-bottom: 30px;
+            }
+
+            .section-divider h5 {
+                color: #2c3e50;
+                font-weight: 700;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
             .table {
                 margin-bottom: 0;
             }
@@ -163,56 +178,11 @@
                 padding: 15px 12px;
             }
 
-            .table tfoot {
-                background-color: #ecf0f1;
-                font-weight: 600;
-            }
-
-            .progress {
-                height: 28px;
-                border-radius: 14px;
-                background-color: #ecf0f1;
-                overflow: hidden;
-            }
-
-            .progress-bar {
-                font-size: 13px;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: width 0.6s ease;
-            }
-
             .badge-large {
                 font-size: 1rem;
                 padding: 8px 14px;
                 font-weight: 600;
                 border-radius: 6px;
-            }
-
-            .don-item {
-                padding: 15px;
-                border-left: 4px solid var(--success-color);
-                background: #f8f9fa;
-                margin-bottom: 12px;
-                border-radius: 6px;
-                transition: background 0.3s ease;
-            }
-
-            .don-item:hover {
-                background: #e9ecef;
-            }
-
-            .section-title {
-                color: var(--primary-color);
-                font-weight: 600;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 3px solid #ecf0f1;
-                display: flex;
-                align-items: center;
-                gap: 10px;
             }
 
             .empty-state {
@@ -318,6 +288,36 @@
                 font-size: 0.95rem;
                 font-weight: 600;
             }
+
+            .category-badge-nature {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .category-badge-materiaux {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            .category-badge-argent {
+                background-color: #d1ecf1;
+                color: #0c5460;
+            }
+
+            .demandes-section {
+                border: 3px solid #f39c12;
+                border-radius: 10px;
+                padding: 20px;
+                background: #fffbf0;
+                margin-bottom: 30px;
+            }
+
+            .recus-section {
+                border: 3px solid #27ae60;
+                border-radius: 10px;
+                padding: 20px;
+                background: #f0fff4;
+            }
         </style>
     </head>
     <body>
@@ -342,7 +342,7 @@
                             </div>
                         </div>
 
-                        <!-- Filtre par région et ville -->
+                        <!-- Filtre par région, ville et catégorie -->
                         <div class="filter-section">
                             <h5>
                                 <i class="bi bi-funnel"></i>
@@ -350,7 +350,7 @@
                             </h5>
                             <form method="GET" action="/dashboard" id="filterForm">
                                 <div class="row">
-                                    <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="col-md-3 mb-3 mb-md-0">
                                         <label for="region_filter" class="form-label fw-bold">
                                             <i class="bi bi-map"></i> Région
                                         </label>
@@ -367,7 +367,7 @@
                                         </select>
                                     </div>
                                     
-                                    <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="col-md-3 mb-3 mb-md-0">
                                         <label for="ville_filter" class="form-label fw-bold">
                                             <i class="bi bi-building"></i> Ville
                                         </label>
@@ -384,8 +384,25 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
+
+                                    <div class="col-md-3 mb-3 mb-md-0">
+                                        <label for="categorie_filter" class="form-label fw-bold">
+                                            <i class="bi bi-tag"></i> Catégorie
+                                        </label>
+                                        <select name="categorie" id="categorie_filter" class="form-select form-select-lg">
+                                            <option value="">Toutes les catégories</option>
+                                            <?php if (isset($categories) && !empty($categories)): ?>
+                                                <?php foreach ($categories as $categorie): ?>
+                                                    <option value="<?= $categorie['id_categorie'] ?>" 
+                                                            <?= (isset($_GET['categorie']) && $_GET['categorie'] == $categorie['id_categorie']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($categorie['nom_categorie']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
                                     
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label d-none d-md-block">&nbsp;</label>
                                         <div class="d-grid gap-2">
                                             <button type="submit" class="btn btn-primary btn-lg">
@@ -435,7 +452,8 @@
                         <?php 
                         // Vérifier si un filtre est actif
                         $has_filter = (isset($_GET['region']) && $_GET['region'] !== '') || 
-                                     (isset($_GET['ville']) && $_GET['ville'] !== '');
+                                     (isset($_GET['ville']) && $_GET['ville'] !== '') ||
+                                     (isset($_GET['categorie']) && $_GET['categorie'] !== '');
                         ?>
 
                         <?php if (!$has_filter): ?>
@@ -445,7 +463,7 @@
                                 <h3>Sélectionnez un filtre pour afficher les détails</h3>
                                 <p>
                                     Utilisez les filtres ci-dessus pour afficher les besoins et distributions 
-                                    détaillés par région ou par ville. Les statistiques globales sont affichées 
+                                    détaillés par région, ville ou catégorie de besoin. Les statistiques globales sont affichées 
                                     pour l'ensemble du système.
                                 </p>
                             </div>
@@ -465,160 +483,115 @@
                                     </div>
                                     <div class="ville-body">
                                         
-                                        <?php if (!empty($ville['besoins'])): ?>
-                                        <!-- Tableau des besoins -->
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 18%;">Type de besoin</th>
-                                                        <th class="text-center" style="width: 10%;">Quantité</th>
-                                                        <th class="text-center" style="width: 10%;">Prix unit.</th>
-                                                        <th class="text-end" style="width: 13%;">Montant besoin</th>
-                                                        <th class="text-center" style="width: 10%;">Dons reçus</th>
-                                                        <th class="text-end" style="width: 13%;">Montant dons</th>
-                                                        <th class="text-end" style="width: 13%;">Reste</th>
-                                                        <th class="text-center" style="width: 13%;">Couverture</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($ville['besoins'] as $besoin): ?>
-                                                    <?php 
-                                                        $montant_besoin = $besoin['quantite'] * $besoin['prix_unitaire'];
-                                                        $montant_dons = $besoin['montant_dons_recus'] ?? 0;
-                                                        $qte_dons = $besoin['quantite_dons_recus'] ?? 0;
-                                                        $reste = $montant_besoin - $montant_dons;
-                                                        $pourcentage = $montant_besoin > 0 ? ($montant_dons / $montant_besoin * 100) : 0;
-                                                        
-                                                        $row_class = '';
-                                                        if ($pourcentage >= 100) $row_class = 'table-success';
-                                                        elseif ($pourcentage >= 50) $row_class = 'table-warning';
-                                                        else $row_class = 'table-danger';
-                                                    ?>
-                                                    <tr class="<?= $row_class ?>">
-                                                        <td>
-                                                            <strong><?= htmlspecialchars($besoin['type_besoin']) ?></strong>
-                                                            <br><small class="text-muted">
+                                        <!-- SECTION 1 : DEMANDES -->
+                                        <div class="demandes-section">
+                                            <h5 class="mb-4">
+                                                <i class="bi bi-clipboard-check"></i> Demandes de cette ville
+                                            </h5>
+                                            
+                                            <?php if (!empty($ville['besoins'])): ?>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-bordered">
+                                                    <thead class="table-warning">
+                                                        <tr>
+                                                            <th style="width: 40%;">Demande</th>
+                                                            <th style="width: 20%;">Catégorie Besoin</th>
+                                                            <th class="text-center" style="width: 15%;">Quantité</th>
+                                                            <th class="text-center" style="width: 25%;">Date de demande</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($ville['besoins'] as $besoin): ?>
+                                                        <?php
+                                                            $cat_badge_class = 'bg-secondary';
+                                                            if ($besoin['nom_categorie'] === 'Nature') $cat_badge_class = 'category-badge-nature';
+                                                            elseif ($besoin['nom_categorie'] === 'Matériaux') $cat_badge_class = 'category-badge-materiaux';
+                                                            elseif ($besoin['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <strong><?= htmlspecialchars($besoin['demande']) ?></strong>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge <?= $cat_badge_class ?> badge-large">
+                                                                    <?= htmlspecialchars($besoin['nom_categorie']) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-dark badge-large">
+                                                                    <?= number_format($besoin['quantite'], 0, ',', ' ') ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
                                                                 <i class="bi bi-calendar3"></i> 
                                                                 <?= date('d/m/Y H:i', strtotime($besoin['date_creation'])) ?>
-                                                            </small>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="badge bg-secondary badge-large">
-                                                                <?= number_format($besoin['quantite'], 0, ',', ' ') ?>
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <?= number_format($besoin['prix_unitaire'], 0, ',', ' ') ?> Ar
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <strong><?= number_format($montant_besoin, 0, ',', ' ') ?> Ar</strong>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <?php if ($qte_dons > 0): ?>
-                                                                <span class="badge bg-success badge-large">
-                                                                    <?= number_format($qte_dons, 0, ',', ' ') ?>
-                                                                </span>
-                                                            <?php else: ?>
-                                                                <span class="badge bg-secondary">0</span>
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <strong class="text-success">
-                                                                <?= number_format($montant_dons, 0, ',', ' ') ?> Ar
-                                                            </strong>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <?php if ($reste > 0): ?>
-                                                                <strong class="text-danger">
-                                                                    <?= number_format($reste, 0, ',', ' ') ?> Ar
-                                                                </strong>
-                                                            <?php else: ?>
-                                                                <span class="text-success fw-bold">
-                                                                    <i class="bi bi-check-circle-fill"></i> Couvert
-                                                                </span>
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <div class="progress">
-                                                                <div class="progress-bar <?= $pourcentage >= 100 ? 'bg-success' : ($pourcentage >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
-                                                                     role="progressbar" 
-                                                                     style="width: <?= min($pourcentage, 100) ?>%">
-                                                                    <?= number_format($pourcentage, 1) ?>%
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="3" class="text-end"><strong>Total ville :</strong></td>
-                                                        <td class="text-end">
-                                                            <strong><?= number_format($ville['total_besoins'], 0, ',', ' ') ?> Ar</strong>
-                                                        </td>
-                                                        <td></td>
-                                                        <td class="text-end">
-                                                            <strong><?= number_format($ville['total_dons'], 0, ',', ' ') ?> Ar</strong>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <strong><?= number_format($ville['total_reste'], 0, ',', ' ') ?> Ar</strong>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <?php 
-                                                                $pct_ville = $ville['total_besoins'] > 0 ? ($ville['total_dons'] / $ville['total_besoins'] * 100) : 0;
-                                                            ?>
-                                                            <span class="badge badge-large <?= $pct_ville >= 100 ? 'bg-success' : ($pct_ville >= 50 ? 'bg-warning' : 'bg-danger') ?>">
-                                                                <?= number_format($pct_ville, 1) ?>%
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-
-                                        <!-- Historique des dons reçus -->
-                                        <?php if (!empty($ville['dons_recus'])): ?>
-                                        <div class="mt-4">
-                                            <h5 class="section-title">
-                                                <i class="bi bi-gift-fill"></i>
-                                                Historique des dons reçus (<?= count($ville['dons_recus']) ?>)
-                                            </h5>
-                                            <?php foreach ($ville['dons_recus'] as $don): ?>
-                                            <div class="don-item">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <strong><?= htmlspecialchars($don['type_besoin']) ?></strong>
-                                                        <?php if ($don['quantite'] > 0): ?>
-                                                            <span class="text-muted"> - Quantité : <?= number_format($don['quantite'], 0, ',', ' ') ?></span>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <div>
-                                                        <span class="badge bg-info badge-large me-2">
-                                                            <?= number_format($don['montant'], 0, ',', ' ') ?> Ar
-                                                        </span>
-                                                        <small class="text-muted">
-                                                            <i class="bi bi-calendar-check"></i>
-                                                            <?= date('d/m/Y', strtotime($don['date_don'])) ?>
-                                                        </small>
-                                                    </div>
-                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <div class="alert alert-warning" role="alert">
+                                                <i class="bi bi-info-circle"></i> Aucune demande enregistrée pour cette ville.
+                                            </div>
+                                            <?php endif; ?>
                                         </div>
-                                        <?php else: ?>
-                                        <div class="alert alert-warning mt-3" role="alert">
-                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                            <strong>Attention :</strong> Cette ville n'a encore reçu aucun don.
-                                        </div>
-                                        <?php endif; ?>
 
-                                        <?php else: ?>
-                                        <div class="alert alert-info" role="alert">
-                                            <i class="bi bi-info-circle-fill me-2"></i>
-                                            Aucun besoin enregistré pour cette ville.
+                                        <!-- SECTION 2 : REÇUS -->
+                                        <div class="recus-section">
+                                            <h5 class="mb-4">
+                                                <i class="bi bi-gift-fill"></i> Dons reçus par cette ville
+                                            </h5>
+                                            
+                                            <?php if (!empty($ville['dons_recus'])): ?>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-bordered">
+                                                    <thead class="table-success">
+                                                        <tr>
+                                                            <th style="width: 40%;">Don reçu</th>
+                                                            <th style="width: 20%;">Catégorie</th>
+                                                            <th class="text-center" style="width: 15%;">Quantité</th>
+                                                            <th class="text-center" style="width: 25%;">Date de réception</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($ville['dons_recus'] as $don): ?>
+                                                        <?php
+                                                            $cat_badge_class = 'bg-secondary';
+                                                            if ($don['nom_categorie'] === 'Nature') $cat_badge_class = 'category-badge-nature';
+                                                            elseif ($don['nom_categorie'] === 'Matériaux') $cat_badge_class = 'category-badge-materiaux';
+                                                            elseif ($don['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <strong><?= htmlspecialchars($don['demande']) ?></strong>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge <?= $cat_badge_class ?> badge-large">
+                                                                    <?= htmlspecialchars($don['nom_categorie']) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-success badge-large">
+                                                                    <?= number_format($don['quantite'], 0, ',', ' ') ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <i class="bi bi-calendar-check"></i>
+                                                                <?= date('d/m/Y', strtotime($don['date_don'])) ?>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <?php else: ?>
+                                            <div class="alert alert-warning" role="alert">
+                                                <i class="bi bi-exclamation-triangle"></i> Aucun don reçu pour cette ville.
+                                            </div>
+                                            <?php endif; ?>
                                         </div>
-                                        <?php endif; ?>
 
                                     </div>
                                 </div>
@@ -648,55 +621,44 @@
         <!-- Scripts -->
         <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Filtre dynamique région -> villes CORRIGÉ
             document.addEventListener('DOMContentLoaded', function() {
                 const regionFilter = document.getElementById('region_filter');
                 const villeFilter = document.getElementById('ville_filter');
                 
-                // Fonction pour filtrer les villes selon la région
                 function filterVillesByRegion() {
                     const selectedRegion = regionFilter.value;
                     const villeOptions = villeFilter.querySelectorAll('option');
                     
                     villeOptions.forEach(option => {
                         if (option.value === '') {
-                            // Toujours afficher l'option "Toutes les villes"
                             option.style.display = 'block';
                             option.disabled = false;
                         } else {
                             const optionRegion = option.getAttribute('data-region');
                             
                             if (selectedRegion === '' || optionRegion === selectedRegion) {
-                                // Afficher si pas de région sélectionnée OU si correspond à la région
                                 option.style.display = 'block';
                                 option.disabled = false;
                             } else {
-                                // Cacher si ne correspond pas à la région
                                 option.style.display = 'none';
                                 option.disabled = true;
                             }
                         }
                     });
                     
-                    // Vérifier si la ville sélectionnée est toujours valide
                     const selectedVille = villeFilter.value;
                     if (selectedVille !== '') {
                         const selectedOption = villeFilter.querySelector(`option[value="${selectedVille}"]`);
                         if (selectedOption && selectedOption.style.display === 'none') {
-                            // Réinitialiser si la ville sélectionnée n'est plus valide
                             villeFilter.value = '';
                         }
                     }
                 }
                 
-                // Appliquer le filtre au chargement de la page (pour conserver l'état)
                 filterVillesByRegion();
                 
-                // Écouter les changements de région
                 regionFilter.addEventListener('change', function() {
-                    // Réinitialiser la sélection de ville
                     villeFilter.value = '';
-                    // Filtrer les villes
                     filterVillesByRegion();
                 });
             });
