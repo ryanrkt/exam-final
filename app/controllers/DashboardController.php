@@ -1,7 +1,4 @@
 <?php
-namespace app\controllers;
-use Flight;
-use PDO;
 
 class DashboardController {
     
@@ -54,8 +51,13 @@ class DashboardController {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    private function getVillesData($db, $filter_region = null, $filter_ville = null) {
+    
+    private function getCategories($db) {
+        $stmt = $db->query("SELECT * FROM CATEGORIE_BESOIN ORDER BY nom_categorie");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    private function getVillesData($db, $filter_region = null, $filter_ville = null, $filter_categorie = null) {
         $where_conditions = [];
         $params = [];
         
@@ -68,6 +70,10 @@ class DashboardController {
             $where_conditions[] = "v.id_ville = :ville";
             $params[':ville'] = $filter_ville;
         }
+        if ($filter_categorie !== null) {
+            $where_conditions[] = "c.id_categorie = :categorie";
+            $params[':categorie'] = $filter_categorie;
+        }
         
         $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
         $sql = "
@@ -79,7 +85,7 @@ class DashboardController {
                 b.quantite,
                 b.prix_unitaire,
                 b.date_creation,
-                t.libelle as type_besoin,
+                c.nom_categorie,
                 COALESCE(
                     (SELECT SUM(d2.quantite) 
                      FROM DISTRIBUTIONS dist2 
@@ -139,13 +145,14 @@ class DashboardController {
         $sql_dons = "
             SELECT 
                 v.id_ville,
-                t.libelle as type_besoin,
+                d.demande,
+                c.nom_categorie,
                 d.quantite,
                 d.montant,
                 d.date_don
             FROM DONS d
             JOIN VILLES v ON d.id_ville = v.id_ville
-            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
+            LEFT JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
             {$where_clause}
             ORDER BY d.date_don DESC, d.id_don ASC
         ";
