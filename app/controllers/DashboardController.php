@@ -1,56 +1,61 @@
 <?php
+namespace app\controllers;
+use Flight;
+use PDO;
 
 class DashboardController {
     
     public function index() {
         $db = Flight::db();
         
-        // Récupérer les filtres
         $filter_region = isset($_GET['region']) && $_GET['region'] !== '' ? (int)$_GET['region'] : null;
         $filter_ville = isset($_GET['ville']) && $_GET['ville'] !== '' ? (int)$_GET['ville'] : null;
-        $filter_categorie = isset($_GET['categorie']) && $_GET['categorie'] !== '' ? (int)$_GET['categorie'] : null;
         
         $regions = $this->getRegions($db);
+        
         $villes = $this->getVilles($db, $filter_region);
-        $categories = $this->getCategories($db);
-        $villes_data = $this->getVillesData($db, $filter_region, $filter_ville, $filter_categorie);
+        
+        $villes_data = $this->getVillesData($db, $filter_region, $filter_ville);
+        
         $stats = $this->calculateStats($villes_data);
         
         Flight::render('dashboard/index', [
             'regions' => $regions,
             'villes' => $villes,
-            'categories' => $categories,
             'villes_data' => $villes_data,
             'stats' => $stats
         ]);
     }
     
+
     private function getRegions($db) {
         $stmt = $db->query("SELECT * FROM REGION ORDER BY nom_region");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
+ 
     private function getVilles($db, $filter_region = null) {
-        $sql = "SELECT v.*, r.nom_region FROM VILLES v LEFT JOIN REGION r ON v.id_region = r.id_region";
+        $sql = "SELECT v.*, r.nom_region 
+                FROM VILLES v 
+                LEFT JOIN REGION r ON v.id_region = r.id_region";
+        
         if ($filter_region !== null) {
             $sql .= " WHERE v.id_region = :region";
         }
+        
         $sql .= " ORDER BY v.nom_ville";
         
         $stmt = $db->prepare($sql);
+        
         if ($filter_region !== null) {
             $stmt->bindParam(':region', $filter_region, PDO::PARAM_INT);
         }
+        
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    private function getCategories($db) {
-        $stmt = $db->query("SELECT * FROM CATEGORIE_BESOIN ORDER BY nom_categorie");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
-    private function getVillesData($db, $filter_region = null, $filter_ville = null, $filter_categorie = null) {
+
+    private function getVillesData($db, $filter_region = null, $filter_ville = null) {
         $where_conditions = [];
         $params = [];
         
@@ -58,28 +63,23 @@ class DashboardController {
             $where_conditions[] = "v.id_region = :region";
             $params[':region'] = $filter_region;
         }
+        
         if ($filter_ville !== null) {
             $where_conditions[] = "v.id_ville = :ville";
             $params[':ville'] = $filter_ville;
         }
-        if ($filter_categorie !== null) {
-            $where_conditions[] = "c.id_categorie = :categorie";
-            $params[':categorie'] = $filter_categorie;
-        }
         
         $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
-        
         $sql = "
             SELECT 
                 v.id_ville,
                 v.nom_ville,
                 r.nom_region,
                 b.id_besoin,
-                b.demande,
                 b.quantite,
                 b.prix_unitaire,
                 b.date_creation,
-                c.nom_categorie,
+                t.libelle as type_besoin,
                 COALESCE(
                     (SELECT SUM(d2.quantite) 
                      FROM DISTRIBUTIONS dist2 
@@ -95,7 +95,7 @@ class DashboardController {
             FROM VILLES v
             LEFT JOIN REGION r ON v.id_region = r.id_region
             LEFT JOIN BESOINS b ON v.id_ville = b.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON b.id_categorie = c.id_categorie
+            LEFT JOIN TYPE_BESOIN t ON b.id_type_besoin = t.id_type_besoin
             {$where_clause}
             ORDER BY r.nom_region, v.nom_ville, b.date_creation
         ";
@@ -104,6 +104,7 @@ class DashboardController {
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+
         $villes_data = [];
         
         foreach ($data as $row) {
@@ -134,20 +135,19 @@ class DashboardController {
             }
         }
         
-        // Dons reçus
+  
         $sql_dons = "
             SELECT 
                 v.id_ville,
-                d.demande,
-                c.nom_categorie,
+                t.libelle as type_besoin,
                 d.quantite,
                 d.montant,
                 d.date_don
             FROM DONS d
             JOIN VILLES v ON d.id_ville = v.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             {$where_clause}
-            ORDER BY d.date_don DESC
+            ORDER BY d.date_don DESC, d.id_don ASC
         ";
         
         $stmt_dons = $db->prepare($sql_dons);
@@ -164,6 +164,7 @@ class DashboardController {
         return array_values($villes_data);
     }
     
+
     private function calculateStats($villes_data) {
         $stats = [
             'nb_villes' => count($villes_data),
