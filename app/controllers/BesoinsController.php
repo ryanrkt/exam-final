@@ -6,7 +6,7 @@ use app\models\Ville;
 use app\models\TypeBesoin;
 use Flight;
 
-class BesoinController
+class BesoinsController
 {
     public function index()
     {
@@ -22,27 +22,32 @@ class BesoinController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = [
-                'id_ville' => $_POST['id_ville'],
-                'id_type_besoin' => $_POST['id_type_besoin'],
-                'quantite' => $_POST['quantite'],
-                'prix_unitaire' => $_POST['prix_unitaire']
+                'id_ville' => $_POST['id_ville'] ?? null,
+                'id_type_besoin' => $_POST['id_type_besoin'] ?? null,
+                'quantite' => $_POST['quantite'] ?? null,
+                'prix_unitaire' => $_POST['prix_unitaire'] ?? null
             ];
 
-            $model = new Besoin(Flight::db());
-            $model->create(
-                $data['id_ville'],
-                $data['id_type_besoin'],
-                $data['quantite'],
-                $data['prix_unitaire']
-            );
+            // Validation simple
+            if ($data['id_ville'] && $data['id_type_besoin'] && $data['quantite'] && $data['prix_unitaire']) {
+                $model = new Besoin(Flight::db());
+                $model->create(
+                    $data['id_ville'],
+                    $data['id_type_besoin'],
+                    $data['quantite'],
+                    $data['prix_unitaire']
+                );
 
-            Flight::redirect('/besoins');
+                Flight::redirect('/besoins');
+            }
         }
 
+        // Afficher le formulaire avec données pré-remplies
         $villeModel = new Ville(Flight::db());
         $typeBesoinModel = new TypeBesoin(Flight::db());
 
-        Flight::render('besoins/create', [
+        Flight::render('besoins/index', [
+            'besoins' => [],
             'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
