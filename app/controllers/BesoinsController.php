@@ -1,20 +1,20 @@
 <?php 
 namespace app\controllers;
 
-use app\models\Don;
+use app\models\Besoin;
 use app\models\Ville;
 use app\models\TypeBesoin;
 use Flight;
 
-class DonController
+class BesoinController
 {
     public function index()
     {
-        $model = new Don(Flight::db());
-        $dons = $model->getAll();
+        $model = new Besoin(Flight::db());
+        $besoins = $model->getAll();
 
-        Flight::render('dons/index', [
-            'dons' => $dons
+        Flight::render('besoins/index', [
+            'besoins' => $besoins
         ]);
     }
 
@@ -25,20 +25,24 @@ class DonController
                 'id_ville' => $_POST['id_ville'],
                 'id_type_besoin' => $_POST['id_type_besoin'],
                 'quantite' => $_POST['quantite'],
-                'montant' => $_POST['montant'],
-                'date_don' => $_POST['date_don']
+                'prix_unitaire' => $_POST['prix_unitaire']
             ];
 
-            $model = new Don(Flight::db());
-            $model->create($data);
+            $model = new Besoin(Flight::db());
+            $model->create(
+                $data['id_ville'],
+                $data['id_type_besoin'],
+                $data['quantite'],
+                $data['prix_unitaire']
+            );
 
-            Flight::redirect('/dons');
+            Flight::redirect('/besoins');
         }
 
         $villeModel = new Ville(Flight::db());
         $typeBesoinModel = new TypeBesoin(Flight::db());
 
-        Flight::render('dons/create', [
+        Flight::render('besoins/create', [
             'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
