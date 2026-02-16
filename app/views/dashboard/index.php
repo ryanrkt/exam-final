@@ -494,9 +494,11 @@
                                                 <table class="table table-hover table-bordered">
                                                     <thead class="table-warning">
                                                         <tr>
-                                                            <th style="width: 30%;">Catégorie</th>
-                                                            <th class="text-center" style="width: 20%;">Quantité</th>
-                                                            <th class="text-center" style="width: 25%;">Date de demande</th>
+                                                            <th style="width: 20%;">Nom du besoin</th>
+                                                            <th style="width: 20%;">Catégorie</th>
+                                                            <th class="text-center" style="width: 12%;">Quantité</th>
+                                                            <th class="text-center" style="width: 15%;">Prix unitaire</th>
+                                                            <th class="text-center" style="width: 23%;">Date de demande</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -509,6 +511,9 @@
                                                         ?>
                                                         <tr>
                                                             <td>
+                                                                <strong><?= htmlspecialchars($besoin['demande'] ?? 'Non spécifié') ?></strong>
+                                                            </td>
+                                                            <td>
                                                                 <span class="badge <?= $cat_badge_class ?> badge-large">
                                                                     <?= htmlspecialchars($besoin['nom_categorie']) ?>
                                                                 </span>
@@ -516,6 +521,11 @@
                                                             <td class="text-center">
                                                                 <span class="badge bg-dark badge-large">
                                                                     <?= number_format($besoin['quantite'], 0, ',', ' ') ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-info text-dark">
+                                                                    <?= number_format($besoin['prix_unitaire'], 0, ',', ' ') ?> Ar
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
@@ -545,9 +555,11 @@
                                                 <table class="table table-hover table-bordered">
                                                     <thead class="table-success">
                                                         <tr>
-                                                            <th style="width: 30%;">Catégorie</th>
-                                                            <th class="text-center" style="width: 20%;">Quantité</th>
-                                                            <th class="text-center" style="width: 25%;">Date de réception</th>
+                                                            <th style="width: 20%;">Nom du don</th>
+                                                            <th style="width: 20%;">Catégorie</th>
+                                                            <th class="text-center" style="width: 12%;">Quantité</th>
+                                                            <th class="text-center" style="width: 15%;">Prix unitaire</th>
+                                                            <th class="text-center" style="width: 23%;">Date de réception</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -557,8 +569,12 @@
                                                             if ($don['nom_categorie'] === 'Nature') $cat_badge_class = 'category-badge-nature';
                                                             elseif ($don['nom_categorie'] === 'Matériaux') $cat_badge_class = 'category-badge-materiaux';
                                                             elseif ($don['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
+                                                            $prix_unitaire_don = $don['quantite'] > 0 ? $don['montant'] / $don['quantite'] : 0;
                                                         ?>
                                                         <tr>
+                                                            <td>
+                                                                <strong><?= htmlspecialchars($don['demande'] ?? 'Non spécifié') ?></strong>
+                                                            </td>
                                                             <td>
                                                                 <span class="badge <?= $cat_badge_class ?> badge-large">
                                                                     <?= htmlspecialchars($don['nom_categorie']) ?>
@@ -567,6 +583,11 @@
                                                             <td class="text-center">
                                                                 <span class="badge bg-success badge-large">
                                                                     <?= number_format($don['quantite'], 0, ',', ' ') ?>
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-info text-dark">
+                                                                    <?= number_format($prix_unitaire_don, 0, ',', ' ') ?> Ar
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">

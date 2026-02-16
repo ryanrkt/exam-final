@@ -1,4 +1,8 @@
 <?php
+namespace app\controllers;
+
+use Flight;
+use PDO;
 
 class DashboardController {
     
@@ -7,18 +11,22 @@ class DashboardController {
         
         $filter_region = isset($_GET['region']) && $_GET['region'] !== '' ? (int)$_GET['region'] : null;
         $filter_ville = isset($_GET['ville']) && $_GET['ville'] !== '' ? (int)$_GET['ville'] : null;
+        $filter_categorie = isset($_GET['categorie']) && $_GET['categorie'] !== '' ? (int)$_GET['categorie'] : null;
         
         $regions = $this->getRegions($db);
         
         $villes = $this->getVilles($db, $filter_region);
         
-        $villes_data = $this->getVillesData($db, $filter_region, $filter_ville);
+        $categories = $this->getCategories($db);
+        
+        $villes_data = $this->getVillesData($db, $filter_region, $filter_ville, $filter_categorie);
         
         $stats = $this->calculateStats($villes_data);
         
         Flight::render('dashboard/index', [
             'regions' => $regions,
             'villes' => $villes,
+            'categories' => $categories,
             'villes_data' => $villes_data,
             'stats' => $stats
         ]);
@@ -53,7 +61,7 @@ class DashboardController {
     }
     
     private function getCategories($db) {
-        $stmt = $db->query("SELECT * FROM CATEGORIE_BESOIN ORDER BY nom_categorie");
+        $stmt = $db->query("SELECT id_type_besoin as id_categorie, libelle as nom_categorie FROM TYPE_BESOIN ORDER BY libelle");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
@@ -71,7 +79,7 @@ class DashboardController {
             $params[':ville'] = $filter_ville;
         }
         if ($filter_categorie !== null) {
-            $where_conditions[] = "c.id_categorie = :categorie";
+            $where_conditions[] = "t.id_type_besoin = :categorie";
             $params[':categorie'] = $filter_categorie;
         }
         
@@ -82,10 +90,11 @@ class DashboardController {
                 v.nom_ville,
                 r.nom_region,
                 b.id_besoin,
+                b.demande,
                 b.quantite,
                 b.prix_unitaire,
                 b.date_creation,
-                c.nom_categorie,
+                t.libelle as nom_categorie,
                 COALESCE(
                     (SELECT SUM(d2.quantite) 
                      FROM DISTRIBUTIONS dist2 
@@ -146,13 +155,13 @@ class DashboardController {
             SELECT 
                 v.id_ville,
                 d.demande,
-                c.nom_categorie,
+                t.libelle as nom_categorie,
                 d.quantite,
                 d.montant,
                 d.date_don
             FROM DONS d
             JOIN VILLES v ON d.id_ville = v.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             {$where_clause}
             ORDER BY d.date_don DESC, d.id_don ASC
         ";
