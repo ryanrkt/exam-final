@@ -13,8 +13,11 @@ class DonController
         $model = new Don(Flight::db());
         $dons = $model->getAll();
 
+        $typeBesoinModel = new TypeBesoin(Flight::db());
+
         Flight::render('dons/index', [
-            'dons' => $dons
+            'dons' => $dons,
+            'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
 
@@ -22,7 +25,6 @@ class DonController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = [
-                'id_ville' => $_POST['id_ville'],
                 'id_type_besoin' => $_POST['id_type_besoin'],
                 'quantite' => $_POST['quantite'],
                 'montant' => $_POST['montant'],
@@ -31,7 +33,7 @@ class DonController
 
             $model = new Don(Flight::db());
             $model->create(
-                $data['id_ville'],
+                null,
                 $data['id_type_besoin'],
                 $data['quantite'],
                 $data['montant'],

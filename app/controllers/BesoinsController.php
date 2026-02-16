@@ -6,15 +6,20 @@ use app\models\Ville;
 use app\models\TypeBesoin;
 use Flight;
 
-class BesoinController
+class BesoinsController
 {
     public function index()
     {
         $model = new Besoin(Flight::db());
         $besoins = $model->getAll();
 
+        $villeModel = new Ville(Flight::db());
+        $typeBesoinModel = new TypeBesoin(Flight::db());
+
         Flight::render('besoins/index', [
-            'besoins' => $besoins
+            'besoins' => $besoins,
+            'villes' => $villeModel->getAll(),
+            'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
 
