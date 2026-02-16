@@ -26,17 +26,19 @@ class Distribution {
     public function getAll() {
         $stmt = $this->db->query("
             SELECT d.*, 
-                   b.demande as besoin_demande,
                    b.quantite as besoin_quantite,
+                   tb.libelle as besoin_type,
                    v1.nom_ville as ville_besoin,
-                   don.demande as don_demande,
                    don.quantite as don_quantite,
+                   td.libelle as don_type,
                    v2.nom_ville as ville_don
             FROM DISTRIBUTIONS d
             JOIN BESOINS b ON d.id_besoin = b.id_besoin
             JOIN VILLES v1 ON b.id_ville = v1.id_ville
+            JOIN TYPE_BESOIN tb ON b.id_type_besoin = tb.id_type_besoin
             JOIN DONS don ON d.id_don = don.id_don
-            JOIN VILLES v2 ON don.id_ville = v2.id_ville
+            LEFT JOIN VILLES v2 ON don.id_ville = v2.id_ville
+            JOIN TYPE_BESOIN td ON don.id_type_besoin = td.id_type_besoin
             ORDER BY d.date_distribution DESC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

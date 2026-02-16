@@ -119,19 +119,24 @@ $router->group('', function (Router $router) use ($app) {
     });
 
     $router->get('/simulation', function () use ($app) {
-        $controller = new SimulationController();
+        $controller = new \app\controllers\SimulationController();
         $controller->index();
     });
     
     // API Simulation
     $router->post('/api/simulation/execute', function () use ($app) {
-        $controller = new SimulationController();
+        $controller = new \app\controllers\SimulationController();
         $controller->executeSimulation();
     });
     
     $router->get('/api/simulation/historique', function () use ($app) {
-        $controller = new SimulationController();
+        $controller = new \app\controllers\SimulationController();
         $controller->getHistorique();
+    });
+    
+    $router->post('/api/simulation/reset', function () use ($app) {
+        $controller = new \app\controllers\SimulationController();
+        $controller->resetDistributions();
     });
 
 }, [SecurityHeadersMiddleware::class]);

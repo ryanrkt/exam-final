@@ -29,18 +29,7 @@ class Don {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    public function getById($id) {
-        $stmt = $this->db->prepare("
-            SELECT d.*, v.nom_ville, r.nom_region, t.libelle as type_besoin
-            FROM DONS d
-            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
-            LEFT JOIN REGION r ON v.id_region = r.id_region
-            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
-            WHERE d.id_don = ?
-        ");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    
     
     public function update($id, $id_ville, $id_type_besoin, $quantite, $montant, $date_don) {
         $stmt = $this->db->prepare("
@@ -54,6 +43,8 @@ class Don {
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM DONS WHERE id_don = ?");
         return $stmt->execute([$id]);
+    }
+    
     /**
      * Récupérer tous les dons avec leur quantité disponible (non utilisée)
      * Triés par ordre chronologique (date_don ASC)
@@ -63,14 +54,14 @@ class Don {
             SELECT d.*, 
                    v.nom_ville,
                    r.nom_region,
-                   c.nom_categorie,
+                   t.libelle as type_besoin,
                    d.quantite as quantite_totale,
                    COALESCE(SUM(dist.quantite_attribuee), 0) as quantite_utilisee,
                    (d.quantite - COALESCE(SUM(dist.quantite_attribuee), 0)) as quantite_disponible
             FROM DONS d
-            JOIN VILLES v ON d.id_ville = v.id_ville
-            JOIN REGION r ON v.id_region = r.id_region
-            JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
+            LEFT JOIN REGION r ON v.id_region = r.id_region
+            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             LEFT JOIN DISTRIBUTIONS dist ON d.id_don = dist.id_don
             GROUP BY d.id_don
             HAVING quantite_disponible > 0
@@ -87,11 +78,11 @@ class Don {
             SELECT d.*, 
                    v.nom_ville,
                    r.nom_region,
-                   c.nom_categorie
+                   t.libelle as type_besoin
             FROM DONS d
-            JOIN VILLES v ON d.id_ville = v.id_ville
-            JOIN REGION r ON v.id_region = r.id_region
-            JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
+            LEFT JOIN REGION r ON v.id_region = r.id_region
+            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             WHERE d.id_don = ?
         ");
         $stmt->execute([$id_don]);

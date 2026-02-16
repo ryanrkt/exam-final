@@ -93,6 +93,6 @@
             
 
         </div>
-        <script src="/assets/js/simple.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
     </body>
 </html>
