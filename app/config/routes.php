@@ -13,7 +13,7 @@ use app\controllers\AdminController;
  * @var Engine $app
  */
 
-// Routes publiques (page d'accueil, connexion, inscription)
+
 $router->group('', function(Router $router) use ($app) {
 
 	$router->get('/test', function() use ($app) {
@@ -30,85 +30,24 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('home', ['nonce' => $nonce]);
 	});
 
-	// Routes d'authentification
-	$router->post('/login', function() use ($app) {
-		$controller = new AuthController($app);
-		$controller->login();
+	
+	// Routes BNGRC Dashboard
+	$router->get('/dashboard', function() use ($app) {
+		$app->render('dashboard/index');
 	});
 
-	$router->post('/register', function() use ($app) {
-		$controller = new AuthController($app);
-		$controller->register();
+	$router->get('/dons', function() use ($app) {
+		$app->render('dons/index');
 	});
 
-	$router->get('/logout', function() use ($app) {
-		$controller = new AuthController($app);
-		$controller->logout();
+	$router->get('/besoins', function() use ($app) {
+		$app->render('besoins/index');
+	});
+
+	$router->get('/simulation', function() use ($app) {
+		$app->render('simulation/index');
 	});
 
 }, [SecurityHeadersMiddleware::class]);
 
-// Routes Admin 
-$router->group('/admin', function(Router $router) use ($app) {
-	
-	$router->get('/', function() use ($app) {
 
-		$controller = new AdminController();
-		$controller->Dashboard();
-	});
-
-	$router->get('/utilisateurs', function() use ($app) {
-		$nonce = $app->get('csp_nonce');
-		if (session_status() === PHP_SESSION_NONE) {
-			session_start();
-		}
-		$user = $_SESSION['user'] ?? [];
-		$app->render('admin/utilisateurs', ['nonce' => $nonce, 'user' => $user]);
-	});
-
-}, [SecurityHeadersMiddleware::class, AdminMiddleware::class]);
-
-// Routes Client 
-$router->group('/client', function(Router $router) use ($app) {
-	
-	$router->get('/', function() use ($app) {
-		if (session_status() === PHP_SESSION_NONE) {
-			session_start();
-		}
-		$nonce = $app->get('csp_nonce');
-		$user = $_SESSION['user'] ?? [];
-		
-		// Statistiques 
-		$stats = [
-			'mes_objets' => 0,
-			'mes_echanges' => 0,
-			'en_attente' => 0
-		];
-		
-		$app->render('client/home', [
-			'nonce' => $nonce,
-			'user' => $user,
-			'stats' => $stats,
-			'objets_recents' => []
-		]);
-	});
-
-	$router->get('/objets', function() use ($app) {
-		$nonce = $app->get('csp_nonce');
-		if (session_status() === PHP_SESSION_NONE) {
-			session_start();
-		}
-		$user = $_SESSION['user'] ?? [];
-		$app->render('client/objets', ['nonce' => $nonce, 'user' => $user]);
-	});
-
-	$router->get('/profil', function() use ($app) {
-		$nonce = $app->get('csp_nonce');
-		if (session_status() === PHP_SESSION_NONE) {
-			session_start();
-		}
-		$user = $_SESSION['user'] ?? [];
-		$app->render('client/profil', ['nonce' => $nonce, 'user' => $user]);
-	});
-
-}, [SecurityHeadersMiddleware::class, ClientMiddleware::class]);
