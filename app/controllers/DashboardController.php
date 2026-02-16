@@ -1,4 +1,10 @@
 <?php
+namespace app\controllers;
+use app\models\Region;
+use app\models\Ville;
+use app\models\TypeBesoin;
+use Flight;
+use PDO;
 
 class DashboardController {
     
