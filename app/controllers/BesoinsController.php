@@ -6,15 +6,20 @@ use app\models\Ville;
 use app\models\TypeBesoin;
 use Flight;
 
-class BesoinController
+class BesoinsController
 {
     public function index()
     {
         $model = new Besoin(Flight::db());
         $besoins = $model->getAll();
 
+        $villeModel = new Ville(Flight::db());
+        $typeBesoinModel = new TypeBesoin(Flight::db());
+
         Flight::render('besoins/index', [
-            'besoins' => $besoins
+            'besoins' => $besoins,
+            'villes' => $villeModel->getAll(),
+            'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
 
@@ -46,5 +51,55 @@ class BesoinController
             'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
+    }
+    
+    public function edit($id)
+    {
+        $model = new Besoin(Flight::db());
+        $besoin = $model->getById($id);
+        
+        if (!$besoin) {
+            Flight::redirect('/besoins');
+            return;
+        }
+        
+        $villeModel = new Ville(Flight::db());
+        $typeBesoinModel = new TypeBesoin(Flight::db());
+        
+        Flight::render('besoins/edit', [
+            'besoin' => $besoin,
+            'villes' => $villeModel->getAll(),
+            'types_besoin' => $typeBesoinModel->getAll()
+        ]);
+    }
+    
+    public function update($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = [
+                'id_ville' => $_POST['id_ville'],
+                'id_type_besoin' => $_POST['id_type_besoin'],
+                'quantite' => $_POST['quantite'],
+                'prix_unitaire' => $_POST['prix_unitaire']
+            ];
+
+            $model = new Besoin(Flight::db());
+            $model->update(
+                $id,
+                $data['id_ville'],
+                $data['id_type_besoin'],
+                $data['quantite'],
+                $data['prix_unitaire']
+            );
+
+            Flight::redirect('/besoins');
+        }
+    }
+    
+    public function delete($id)
+    {
+        $model = new Besoin(Flight::db());
+        $model->delete($id);
+        Flight::redirect('/besoins');
     }
 }
