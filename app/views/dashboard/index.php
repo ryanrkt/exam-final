@@ -494,9 +494,8 @@
                                                 <table class="table table-hover table-bordered">
                                                     <thead class="table-warning">
                                                         <tr>
-                                                            <th style="width: 40%;">Demande</th>
-                                                            <th style="width: 20%;">Catégorie Besoin</th>
-                                                            <th class="text-center" style="width: 15%;">Quantité</th>
+                                                            <th style="width: 30%;">Catégorie</th>
+                                                            <th class="text-center" style="width: 20%;">Quantité</th>
                                                             <th class="text-center" style="width: 25%;">Date de demande</th>
                                                         </tr>
                                                     </thead>
@@ -509,9 +508,6 @@
                                                             elseif ($besoin['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
                                                         ?>
                                                         <tr>
-                                                            <td>
-                                                                <strong><?= htmlspecialchars($besoin['demande']) ?></strong>
-                                                            </td>
                                                             <td>
                                                                 <span class="badge <?= $cat_badge_class ?> badge-large">
                                                                     <?= htmlspecialchars($besoin['nom_categorie']) ?>
@@ -549,9 +545,8 @@
                                                 <table class="table table-hover table-bordered">
                                                     <thead class="table-success">
                                                         <tr>
-                                                            <th style="width: 40%;">Don reçu</th>
-                                                            <th style="width: 20%;">Catégorie</th>
-                                                            <th class="text-center" style="width: 15%;">Quantité</th>
+                                                            <th style="width: 30%;">Catégorie</th>
+                                                            <th class="text-center" style="width: 20%;">Quantité</th>
                                                             <th class="text-center" style="width: 25%;">Date de réception</th>
                                                         </tr>
                                                     </thead>
@@ -564,9 +559,6 @@
                                                             elseif ($don['nom_categorie'] === 'Argent') $cat_badge_class = 'category-badge-argent';
                                                         ?>
                                                         <tr>
-                                                            <td>
-                                                                <strong><?= htmlspecialchars($don['demande']) ?></strong>
-                                                            </td>
                                                             <td>
                                                                 <span class="badge <?= $cat_badge_class ?> badge-large">
                                                                     <?= htmlspecialchars($don['nom_categorie']) ?>

@@ -1,4 +1,8 @@
 <?php
+namespace app\controllers;
+
+use Flight;
+use PDO;
 
 class DashboardController {
     
@@ -46,7 +50,7 @@ class DashboardController {
     }
     
     private function getCategories($db) {
-        $stmt = $db->query("SELECT * FROM CATEGORIE_BESOIN ORDER BY nom_categorie");
+        $stmt = $db->query("SELECT id_type_besoin as id_categorie, libelle as nom_categorie FROM TYPE_BESOIN ORDER BY libelle");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
@@ -63,7 +67,7 @@ class DashboardController {
             $params[':ville'] = $filter_ville;
         }
         if ($filter_categorie !== null) {
-            $where_conditions[] = "c.id_categorie = :categorie";
+            $where_conditions[] = "t.id_type_besoin = :categorie";
             $params[':categorie'] = $filter_categorie;
         }
         
@@ -75,11 +79,10 @@ class DashboardController {
                 v.nom_ville,
                 r.nom_region,
                 b.id_besoin,
-                b.demande,
                 b.quantite,
                 b.prix_unitaire,
                 b.date_creation,
-                c.nom_categorie,
+                t.libelle as nom_categorie,
                 COALESCE(
                     (SELECT SUM(d2.quantite) 
                      FROM DISTRIBUTIONS dist2 
@@ -95,7 +98,7 @@ class DashboardController {
             FROM VILLES v
             LEFT JOIN REGION r ON v.id_region = r.id_region
             LEFT JOIN BESOINS b ON v.id_ville = b.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON b.id_categorie = c.id_categorie
+            LEFT JOIN TYPE_BESOIN t ON b.id_type_besoin = t.id_type_besoin
             {$where_clause}
             ORDER BY r.nom_region, v.nom_ville, b.date_creation
         ";
@@ -138,14 +141,13 @@ class DashboardController {
         $sql_dons = "
             SELECT 
                 v.id_ville,
-                d.demande,
-                c.nom_categorie,
+                t.libelle as nom_categorie,
                 d.quantite,
                 d.montant,
                 d.date_don
             FROM DONS d
-            JOIN VILLES v ON d.id_ville = v.id_ville
-            LEFT JOIN CATEGORIE_BESOIN c ON d.id_categorie = c.id_categorie
+            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
+            LEFT JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             {$where_clause}
             ORDER BY d.date_don DESC
         ";

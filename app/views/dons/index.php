@@ -35,32 +35,39 @@
           <hr />
           <h3>Liste des dons</h3>
           <?php if (!empty($dons)): ?>
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Région</th>
-                  <th>Ville</th>
-                  <th>Type</th>
-                  <th>Quantité</th>
-                  <th>Montant</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach($dons as $don): ?>
+            <div class="table-wrapper">
+              <table class="alt">
+                <thead>
                   <tr>
-                    <td><?= htmlspecialchars($don['id_don'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['nom_region'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['nom_ville'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['type_besoin'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['quantite'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['montant'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($don['date_don'] ?? '') ?></td>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Quantité</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Région</th>
+                    <th>Ville</th>
+                    <th>Actions</th>
                   </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <?php foreach($dons as $don): ?>
+                    <tr>
+                      <td><?= htmlspecialchars($don['id_don'] ?? '') ?></td>
+                      <td><?= htmlspecialchars($don['type_besoin'] ?? '') ?></td>
+                      <td><?= htmlspecialchars($don['quantite'] ?? '') ?></td>
+                      <td><?= number_format($don['montant'] ?? 0, 2, ',', ' ') ?> Ar</td>
+                      <td><?= htmlspecialchars($don['date_don'] ?? '') ?></td>
+                      <td><?= htmlspecialchars($don['nom_region'] ?? '-') ?></td>
+                      <td><?= htmlspecialchars($don['nom_ville'] ?? '-') ?></td>
+                      <td>
+                        <a href="/dons/edit/<?= $don['id_don'] ?>" class="button small">Modifier</a>
+                        <a href="/dons/delete/<?= $don['id_don'] ?>" class="button small" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce don ?')">Supprimer</a>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           <?php else: ?>
             <p>Aucun don enregistré.</p>
           <?php endif; ?>

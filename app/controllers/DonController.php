@@ -51,4 +51,53 @@ class DonController
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
+    
+    public function edit($id)
+    {
+        $model = new Don(Flight::db());
+        $don = $model->getById($id);
+        
+        if (!$don) {
+            Flight::redirect('/dons');
+            return;
+        }
+        
+        $typeBesoinModel = new TypeBesoin(Flight::db());
+        
+        Flight::render('dons/edit', [
+            'don' => $don,
+            'types_besoin' => $typeBesoinModel->getAll()
+        ]);
+    }
+    
+    public function update($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = [
+                'id_type_besoin' => $_POST['id_type_besoin'],
+                'quantite' => $_POST['quantite'],
+                'montant' => $_POST['montant'],
+                'date_don' => $_POST['date_don']
+            ];
+
+            $model = new Don(Flight::db());
+            $model->update(
+                $id,
+                null,
+                $data['id_type_besoin'],
+                $data['quantite'],
+                $data['montant'],
+                $data['date_don']
+            );
+
+            Flight::redirect('/dons');
+        }
+    }
+    
+    public function delete($id)
+    {
+        $model = new Don(Flight::db());
+        $model->delete($id);
+        Flight::redirect('/dons');
+    }
 }

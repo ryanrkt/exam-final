@@ -48,32 +48,39 @@
                         <hr />
                         <h3>Liste des besoins</h3>
                         <?php if (!empty($besoins)): ?>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Région</th>
-                                        <th>Ville</th>
-                                        <th>Type</th>
-                                        <th>Quantité</th>
-                                        <th>Prix unitaire</th>
-                                        <th>Montant total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($besoins as $b): ?>
+                            <div class="table-wrapper">
+                                <table class="alt">
+                                    <thead>
                                         <tr>
-                                            <td><?= htmlspecialchars($b['id_besoin'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['nom_region'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['nom_ville'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['type_besoin'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['quantite'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['prix_unitaire'] ?? '') ?></td>
-                                            <td><?= htmlspecialchars($b['montant_total'] ?? '') ?></td>
+                                            <th>ID</th>
+                                            <th>Région</th>
+                                            <th>Ville</th>
+                                            <th>Type</th>
+                                            <th>Quantité</th>
+                                            <th>Prix unitaire</th>
+                                            <th>Montant total</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($besoins as $b): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($b['id_besoin'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($b['nom_region'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($b['nom_ville'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($b['type_besoin'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($b['quantite'] ?? '') ?></td>
+                                                <td><?= number_format($b['prix_unitaire'] ?? 0, 2, ',', ' ') ?> Ar</td>
+                                                <td><?= number_format($b['montant_total'] ?? 0, 2, ',', ' ') ?> Ar</td>
+                                                <td>
+                                                    <a href="/besoins/edit/<?= $b['id_besoin'] ?>" class="button small">Modifier</a>
+                                                    <a href="/besoins/delete/<?= $b['id_besoin'] ?>" class="button small" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce besoin ?')">Supprimer</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         <?php else: ?>
                             <p>Aucun besoin enregistré.</p>
                         <?php endif; ?>

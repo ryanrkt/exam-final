@@ -76,6 +76,21 @@ $router->group('', function (Router $router) use ($app) {
         $controller = new DonController();
         $controller->create();
     });
+    
+    $router->get('/dons/edit/@id', function ($id) use ($app) {
+        $controller = new DonController();
+        $controller->edit($id);
+    });
+    
+    $router->post('/dons/update/@id', function ($id) use ($app) {
+        $controller = new DonController();
+        $controller->update($id);
+    });
+    
+    $router->get('/dons/delete/@id', function ($id) use ($app) {
+        $controller = new DonController();
+        $controller->delete($id);
+    });
 
     // Routes pour besoins
     $router->get('/besoins', function () use ($app) {
@@ -86,6 +101,21 @@ $router->group('', function (Router $router) use ($app) {
     $router->post('/besoins/create', function () use ($app) {
         $controller = new BesoinsController();
         $controller->create();
+    });
+    
+    $router->get('/besoins/edit/@id', function ($id) use ($app) {
+        $controller = new BesoinsController();
+        $controller->edit($id);
+    });
+    
+    $router->post('/besoins/update/@id', function ($id) use ($app) {
+        $controller = new BesoinsController();
+        $controller->update($id);
+    });
+    
+    $router->get('/besoins/delete/@id', function ($id) use ($app) {
+        $controller = new BesoinsController();
+        $controller->delete($id);
     });
 
     $router->get('/simulation', function () use ($app) {
