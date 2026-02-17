@@ -5,34 +5,35 @@ use flight\net\Router;
 use app\controllers\DashboardController;
 use app\controllers\DonController;
 use app\controllers\BesoinsController;
+use app\controllers\AchatsController;
+use app\controllers\SimulationController;
 use app\middlewares\SecurityHeadersMiddleware;
-use app\models\Ville;
-use app\models\Besoin;
-
 
 /** 
  * @var Router $router 
  * @var Engine $app
  */
 
-// Autoload des controllers
+// ========================================
+// AUTOLOAD DES CLASSES
+// ========================================
 spl_autoload_register(function ($class) {
-    // Support namespaced classes like "app\controllers\MyController"
-    // Convert namespace separators to directory separators
+    // Support des classes namespacées comme "app\controllers\MyController"
     $path = str_replace('\\', '/', $class);
 
-    // If class starts with 'app/', remove that prefix because we're already in app/
+    // Si la classe commence par 'app/', on retire ce préfixe
     if (strpos($path, 'app/') === 0) {
         $path = substr($path, 4);
     }
 
+    // Essayer de charger depuis app/
     $file = __DIR__ . '/../' . $path . '.php';
     if (file_exists($file)) {
         require_once $file;
         return true;
     }
 
-    // Fallback: try previous behaviour for non-namespaced class names
+    // Fallback : essayer depuis app/controllers/
     $fallback = __DIR__ . '/../controllers/' . $class . '.php';
     if (file_exists($fallback)) {
         require_once $fallback;
@@ -42,31 +43,46 @@ spl_autoload_register(function ($class) {
     return false;
 });
 
+// ========================================
+// GROUPE DE ROUTES AVEC MIDDLEWARE
+// ========================================
 $router->group('', function (Router $router) use ($app) {
 
-    // Test connexion DB
+    // ========================================
+    // TEST & DEBUG
+    // ========================================
     $router->get('/test', function () use ($app) {
         $db = Flight::db();
         if ($db) {
-            echo "Database connection successful!";
+            echo "✅ Database connection successful!<br>";
+            try {
+                $stmt = $db->query("SELECT COUNT(*) as count FROM REGION");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                echo "Nombre de régions : " . $result['count'];
+            } catch (Exception $e) {
+                echo "❌ Erreur : " . $e->getMessage();
+            }
         } else {
-            echo "Database connection failed.";
+            echo "❌ Database connection failed.";
         }
     });
 
-    // Page d'accueil = Dashboard
+    // ========================================
+    // DASHBOARD
+    // ========================================
     $router->get('/', function () use ($app) {
         $controller = new DashboardController();
         $controller->index();
     });
 
-    // Dashboard
     $router->get('/dashboard', function () use ($app) {
         $controller = new DashboardController();
         $controller->index();
     });
 
-    // Routes pour dons
+    // ========================================
+    // GESTION DES DONS
+    // ========================================
     $router->get('/dons', function () use ($app) {
         $controller = new DonController();
         $controller->index();
@@ -92,7 +108,9 @@ $router->group('', function (Router $router) use ($app) {
         $controller->delete($id);
     });
 
-    // Routes pour besoins
+    // ========================================
+    // GESTION DES BESOINS
+    // ========================================
     $router->get('/besoins', function () use ($app) {
         $controller = new BesoinsController();
         $controller->index();
@@ -118,25 +136,111 @@ $router->group('', function (Router $router) use ($app) {
         $controller->delete($id);
     });
 
+    // ========================================
+    // ACHATS AVEC DONS EN ARGENT
+    // ========================================
+    $router->get('/achats/besoins-restants', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->besoinsRestants();
+    });
+
+    $router->post('/achats/simuler', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->simuler();
+    });
+
+    $router->get('/achats/simulation', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->pageSimulation();
+    });
+
+    $router->post('/achats/valider', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->valider();
+    });
+
+    $router->post('/achats/annuler', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->annuler();
+    });
+
+    $router->get('/achats/recapitulatif', function () use ($app) {
+        $controller = new AchatsController();
+        $controller->recapitulatif();
+    });
+
+    // ========================================
+    // SIMULATION DISPATCH (ancien système)
+    // ========================================
     $router->get('/simulation', function () use ($app) {
-        $controller = new \app\controllers\SimulationController();
+        $controller = new SimulationController();
         $controller->index();
     });
     
-    // API Simulation
     $router->post('/api/simulation/execute', function () use ($app) {
-        $controller = new \app\controllers\SimulationController();
+        $controller = new SimulationController();
         $controller->executeSimulation();
     });
     
     $router->get('/api/simulation/historique', function () use ($app) {
-        $controller = new \app\controllers\SimulationController();
+        $controller = new SimulationController();
         $controller->getHistorique();
     });
     
     $router->post('/api/simulation/reset', function () use ($app) {
-        $controller = new \app\controllers\SimulationController();
+        $controller = new SimulationController();
         $controller->resetDistributions();
     });
 
+    // ========================================
+    // CONFIGURATION (optionnel)
+    // ========================================
+    $router->get('/config/frais', function () use ($app) {
+        $db = Flight::db();
+        $configModel = new \app\models\Config($db);
+        $frais = $configModel->getFraisAchatPourcentage();
+        
+        Flight::render('config/frais', ['frais_pourcentage' => $frais]);
+    });
+
+    $router->post('/config/frais/update', function () use ($app) {
+        $db = Flight::db();
+        $configModel = new \app\models\Config($db);
+        
+        $nouveau_frais = $_POST['frais_pourcentage'] ?? 10;
+        $configModel->setValeur('frais_achat_pourcentage', $nouveau_frais);
+        
+        Flight::redirect('/config/frais');
+    });
+
+    // ========================================
+    // RECHERCHE (placeholder)
+    // ========================================
+    $router->post('/search', function () use ($app) {
+        $query = $_POST['query'] ?? '';
+        // TODO: Implémenter la recherche
+        Flight::redirect('/dashboard');
+    });
+
+    // ========================================
+    // DÉCONNEXION (placeholder)
+    // ========================================
+    $router->get('/logout', function () use ($app) {
+        session_destroy();
+        Flight::redirect('/');
+    });
+
 }, [SecurityHeadersMiddleware::class]);
+
+// ========================================
+// GESTION DES ERREURS
+// ========================================
+Flight::map('notFound', function() {
+    Flight::render('errors/404', [], 'content');
+    Flight::render('layouts/main');
+});
+
+Flight::map('error', function(Exception $e) {
+    echo '<h1>Erreur serveur</h1>';
+    echo '<p>' . $e->getMessage() . '</p>';
+});

@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace app\controllers;
 
 use app\models\Don;
@@ -6,98 +6,84 @@ use app\models\Ville;
 use app\models\TypeBesoin;
 use Flight;
 
-class DonController
-{
-    public function index()
-    {
-        $model = new Don(Flight::db());
-        $dons = $model->getAll();
-
-        $typeBesoinModel = new TypeBesoin(Flight::db());
-
+class DonController {
+    
+    public function index() {
+        $db = Flight::db();
+        $donModel = new Don($db);
+        $dons = $donModel->getAll();
+        
+        $villeModel = new Ville($db);
+        $typeBesoinModel = new TypeBesoin($db);
+        
         Flight::render('dons/index', [
             'dons' => $dons,
-            'types_besoin' => $typeBesoinModel->getAll()
-        ]);
-    }
-
-    public function create()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = [
-                'id_type_besoin' => $_POST['id_type_besoin'],
-                'quantite' => $_POST['quantite'],
-                'montant' => $_POST['montant'],
-                'date_don' => $_POST['date_don']
-            ];
-
-            $model = new Don(Flight::db());
-            $model->create(
-                null,
-                $data['id_type_besoin'],
-                $data['quantite'],
-                $data['montant'],
-                $data['date_don']
-            );
-
-            Flight::redirect('/dons');
-        }
-
-        $villeModel = new Ville(Flight::db());
-        $typeBesoinModel = new TypeBesoin(Flight::db());
-
-        Flight::render('dons/create', [
             'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
     
-    public function edit($id)
-    {
-        $model = new Don(Flight::db());
-        $don = $model->getById($id);
+    public function create() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $db = Flight::db();
+            $donModel = new Don($db);
+            
+            $id_ville = $_POST['id_ville'];
+            $demande = $_POST['demande'] ?? ''; // Nouveau champ
+            $id_type_besoin = $_POST['id_type_besoin'];
+            $quantite = $_POST['quantite'];
+            $montant = $_POST['montant'];
+            $date_don = $_POST['date_don'];
+            
+            $donModel->create($id_ville, $demande, $id_type_besoin, $quantite, $montant, $date_don);
+            
+            Flight::redirect('/dons');
+        }
+    }
+    
+    public function edit($id) {
+        $db = Flight::db();
+        $donModel = new Don($db);
+        $don = $donModel->getById($id);
         
         if (!$don) {
             Flight::redirect('/dons');
             return;
         }
         
-        $typeBesoinModel = new TypeBesoin(Flight::db());
+        $villeModel = new Ville($db);
+        $typeBesoinModel = new TypeBesoin($db);
         
         Flight::render('dons/edit', [
             'don' => $don,
+            'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
     
-    public function update($id)
-    {
+    public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = [
-                'id_type_besoin' => $_POST['id_type_besoin'],
-                'quantite' => $_POST['quantite'],
-                'montant' => $_POST['montant'],
-                'date_don' => $_POST['date_don']
-            ];
-
-            $model = new Don(Flight::db());
-            $model->update(
-                $id,
-                null,
-                $data['id_type_besoin'],
-                $data['quantite'],
-                $data['montant'],
-                $data['date_don']
-            );
-
+            $db = Flight::db();
+            $donModel = new Don($db);
+            
+            $id_ville = $_POST['id_ville'];
+            $demande = $_POST['demande'] ?? '';
+            $id_type_besoin = $_POST['id_type_besoin'];
+            $quantite = $_POST['quantite'];
+            $montant = $_POST['montant'];
+            $date_don = $_POST['date_don'];
+            
+            $donModel->update($id, $id_ville, $demande, $id_type_besoin, $quantite, $montant, $date_don);
+            
             Flight::redirect('/dons');
         }
     }
     
-    public function delete($id)
-    {
-        $model = new Don(Flight::db());
-        $model->delete($id);
+    public function delete($id) {
+        $db = Flight::db();
+        $donModel = new Don($db);
+        $donModel->delete($id);
+        
         Flight::redirect('/dons');
     }
 }
