@@ -18,13 +18,11 @@ class SimulationController {
     /**
      * Exécuter la simulation de distribution automatique
      * 
-     * Logique:
-     * 1. Récupérer tous les besoins non satisfaits (triés par date_creation ASC - ordre chronologique)
+     * Logique de distribution équitable par tour :
+     * 1. Récupérer tous les besoins non satisfaits (triés par date_creation ASC)
      * 2. Récupérer tous les dons disponibles (triés par date_don ASC)
-     * 3. Pour chaque besoin (dans l'ordre chronologique):
-     *    - Chercher n'importe quel don disponible (peu importe le type)
-     *    - La ville qui a demandé en premier reçoit le don en priorité
-     * 4. Créer une distribution avec la quantité appropriée
+     * 3. Distribution par tour : chaque VILLE reçoit UN SEUL don par tour
+     * 4. Une fois toutes les villes servies, on recommence un nouveau tour
      */
     public function executeSimulation() {
         $db = Flight::db();
@@ -43,49 +41,146 @@ class SimulationController {
             $distributions_effectuees = [];
             $date_distribution = date('Y-m-d');
             
-            // Pour chaque besoin (dans l'ordre chronologique)
-            foreach ($besoins as $besoin) {
-                $quantite_besoin_restant = $besoin['quantite_restante'];
+            // Garder trace des villes servies dans le tour actuel
+            $villes_servies_ce_tour = [];
+            
+            // Index du don actuel
+            $index_don_actuel = 0;
+            
+            // Continuer tant qu'il reste des dons et des besoins
+            while ($index_don_actuel < count($dons)) {
+                $distribution_effectuee = false;
                 
-                // Chercher n'importe quel don disponible
-                foreach ($dons as &$don) {
-                    // Vérifier si le don a de la quantité disponible
-                    if ($don['quantite_disponible'] <= 0) {
-                        continue; // Pas de quantité disponible
+                // Chercher un don disponible
+                $don_trouve_idx = null;
+                for ($i = $index_don_actuel; $i < count($dons); $i++) {
+                    if ($dons[$i] && isset($dons[$i]['quantite_disponible']) && $dons[$i]['quantite_disponible'] > 0) {
+                        $don_trouve_idx = $i;
+                        break;
+                    }
+                }
+                
+                // Si aucun don disponible, arrêter
+                if ($don_trouve_idx === null) {
+                    break;
+                }
+                
+                $don_actuel = $dons[$don_trouve_idx];
+                
+                // Chercher un besoin d'une ville non encore servie dans ce tour
+                $besoin_trouve_idx = null;
+                
+                // 1. D'abord chercher un besoin du même type d'une ville non servie
+                foreach ($besoins as $idx => $besoin) {
+                    if (!$besoin || !isset($besoin['quantite_restante']) || $besoin['quantite_restante'] <= 0) {
+                        continue;
                     }
                     
-                    // Calculer la quantité à distribuer
-                    $quantite_a_distribuer = min($quantite_besoin_restant, $don['quantite_disponible']);
+                    // Vérifier si cette ville n'a pas encore été servie dans ce tour
+                    if (in_array($besoin['id_ville'], $villes_servies_ce_tour)) {
+                        continue;
+                    }
                     
-                    if ($quantite_a_distribuer > 0) {
-                        // Créer la distribution
-                        $distributionModel->create(
-                            $besoin['id_besoin'],
-                            $don['id_don'],
-                            $quantite_a_distribuer,
-                            $date_distribution
-                        );
+                    // Priorité au même type de besoin
+                    if ($besoin['id_type_besoin'] == $don_actuel['id_type_besoin']) {
+                        $besoin_trouve_idx = $idx;
+                        break;
+                    }
+                }
+                
+                // 2. Si pas trouvé, chercher n'importe quel besoin d'une ville non servie
+                if ($besoin_trouve_idx === null) {
+                    foreach ($besoins as $idx => $besoin) {
+                        if (!$besoin || !isset($besoin['quantite_restante']) || $besoin['quantite_restante'] <= 0) {
+                            continue;
+                        }
                         
-                        // Mettre à jour les quantités
-                        $don['quantite_disponible'] -= $quantite_a_distribuer;
-                        $quantite_besoin_restant -= $quantite_a_distribuer;
+                        // Vérifier si cette ville n'a pas encore été servie dans ce tour
+                        if (in_array($besoin['id_ville'], $villes_servies_ce_tour)) {
+                            continue;
+                        }
                         
-                        // Enregistrer la distribution effectuée
-                        $distributions_effectuees[] = [
-                            'besoin' => $besoin['type_besoin'],
-                            'ville_besoin' => $besoin['nom_ville'],
-                            'quantite' => $quantite_a_distribuer,
-                            'don' => $don['type_besoin'],
-                            'ville_don' => $don['nom_ville'] ?? 'Non assignée',
-                            'date_besoin' => $besoin['date_creation'],
-                            'date_don' => $don['date_don']
-                        ];
-                        
-                        // Si le besoin est complètement satisfait, passer au suivant
-                        if ($quantite_besoin_restant <= 0) {
+                        $besoin_trouve_idx = $idx;
+                        break;
+                    }
+                }
+                
+                // Si aucun besoin trouvé pour une ville non servie, réinitialiser le tour
+                if ($besoin_trouve_idx === null) {
+                    // Vérifier s'il reste encore des besoins non satisfaits
+                    $besoins_restants = false;
+                    foreach ($besoins as $b) {
+                        if ($b && isset($b['quantite_restante']) && $b['quantite_restante'] > 0) {
+                            $besoins_restants = true;
                             break;
                         }
                     }
+                    
+                    if (!$besoins_restants) {
+                        break; // Plus de besoins, arrêter
+                    }
+                    
+                    // Réinitialiser le tour et recommencer
+                    $villes_servies_ce_tour = [];
+                    
+                    // Chercher à nouveau un besoin
+                    foreach ($besoins as $idx => $besoin) {
+                        if ($besoin && isset($besoin['quantite_restante']) && $besoin['quantite_restante'] > 0) {
+                            $besoin_trouve_idx = $idx;
+                            break;
+                        }
+                    }
+                }
+                
+                // Si toujours pas de besoin trouvé, arrêter
+                if ($besoin_trouve_idx === null) {
+                    break;
+                }
+                
+                $besoin_actuel = $besoins[$besoin_trouve_idx];
+                
+                // Calculer la quantité à distribuer
+                $quantite_a_distribuer = min($besoin_actuel['quantite_restante'], $don_actuel['quantite_disponible']);
+                
+                if ($quantite_a_distribuer > 0) {
+                    // Créer la distribution
+                    $distributionModel->create(
+                        $besoin_actuel['id_besoin'],
+                        $don_actuel['id_don'],
+                        $quantite_a_distribuer,
+                        $date_distribution
+                    );
+                    
+                    // Mettre à jour les quantités
+                    $dons[$don_trouve_idx]['quantite_disponible'] -= $quantite_a_distribuer;
+                    $besoins[$besoin_trouve_idx]['quantite_restante'] -= $quantite_a_distribuer;
+                    
+                    // Marquer la ville comme servie dans ce tour
+                    $villes_servies_ce_tour[] = $besoin_actuel['id_ville'];
+                    
+                    // Enregistrer la distribution effectuée
+                    $distributions_effectuees[] = [
+                        'besoin' => $besoin_actuel['type_besoin'],
+                        'ville_besoin' => $besoin_actuel['nom_ville'],
+                        'region_besoin' => $besoin_actuel['nom_region'],
+                        'quantite' => $quantite_a_distribuer,
+                        'don' => $don_actuel['type_besoin'],
+                        'don_demande' => $don_actuel['demande'] ?? '',
+                        'date_besoin' => $besoin_actuel['date_creation'],
+                        'date_don' => $don_actuel['date_don']
+                    ];
+                    
+                    $distribution_effectuee = true;
+                    
+                    // Si le don est épuisé, passer au don suivant
+                    if ($dons[$don_trouve_idx]['quantite_disponible'] <= 0) {
+                        $index_don_actuel = $don_trouve_idx + 1;
+                    }
+                }
+                
+                // Si aucune distribution effectuée, avancer
+                if (!$distribution_effectuee) {
+                    $index_don_actuel++;
                 }
             }
             

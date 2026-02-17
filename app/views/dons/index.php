@@ -25,6 +25,7 @@
                   <?php endif; ?>
                 </select>
               </div>
+              <div class="col-6"><input type="text" name="demande" placeholder="Libellé du don (ex: Riz, Eau...)" required /></div>
               <div class="col-6"><input type="number" name="quantite" placeholder="Quantité" required /></div>
               <div class="col-6"><input type="number" step="0.01" name="montant" placeholder="Montant" required /></div>
               <div class="col-6"><input type="date" name="date_don" value="<?= date('Y-m-d') ?>" required /></div>
@@ -41,11 +42,13 @@
                   <tr>
                     <th>ID</th>
                     <th>Type</th>
+                    <th>Libellé</th>
                     <th>Quantité</th>
+                    <th>Distribué</th>
                     <th>Montant</th>
                     <th>Date</th>
-                    <th>Région</th>
-                    <th>Ville</th>
+                    <th>Villes bénéficiaires</th>
+                    <th>Régions bénéficiaires</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -54,11 +57,13 @@
                     <tr>
                       <td><?= htmlspecialchars($don['id_don'] ?? '') ?></td>
                       <td><?= htmlspecialchars($don['type_besoin'] ?? '') ?></td>
+                      <td><?= htmlspecialchars($don['demande'] ?? '') ?></td>
                       <td><?= htmlspecialchars($don['quantite'] ?? '') ?></td>
+                      <td><?= htmlspecialchars($don['quantite_distribuee'] ?? 0) ?></td>
                       <td><?= number_format($don['montant'] ?? 0, 2, ',', ' ') ?> Ar</td>
                       <td><?= htmlspecialchars($don['date_don'] ?? '') ?></td>
-                      <td><?= htmlspecialchars($don['nom_region'] ?? '-') ?></td>
                       <td><?= htmlspecialchars($don['nom_ville'] ?? '-') ?></td>
+                      <td><?= htmlspecialchars($don['nom_region'] ?? '-') ?></td>
                       <td>
                         <a href="/dons/edit/<?= $don['id_don'] ?>" class="button small">Modifier</a>
                         <a href="/dons/delete/<?= $don['id_don'] ?>" class="button small" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce don ?')">Supprimer</a>
