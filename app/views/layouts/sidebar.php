@@ -15,7 +15,10 @@
                 <li><a href="/dashboard">Tableau de Bord</a></li>
                 <li><a href="/besoins">Besoins</a></li>
                 <li><a href="/dons">Dons</a></li>
-                <li><a href="/simulation">Simulation</a></li>
+                <li><a href="/achats/besoins-restants">Achats - Besoins Restants</a></li>
+                <li><a href="/achats/simulation">Achats - Simulation</a></li>
+                <li><a href="/achats/recapitulatif">Achats - Récapitulatif</a></li>
+                <li><a href="/simulation">Simulation Dispatch</a></li>
                 <li><a href="/logout">Déconnexion</a></li>
             </ul>
         </nav>
