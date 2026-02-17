@@ -35,6 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
      * Simuler la distribution (preview, pas d'écriture en BD)
      */
     function executeSimulation() {
+        // Récupérer les critères cochés
+        const criteres = [];
+        document.querySelectorAll('input[name="critere"]:checked').forEach(cb => {
+            criteres.push(cb.value);
+        });
+        
+        // Validation: au moins un critère obligatoire
+        if (criteres.length === 0) {
+            showStatus('error', 'Veuillez sélectionner au moins un critère de distribution.');
+            return;
+        }
+        
         runSimButton.disabled = true;
         runSimButton.textContent = 'Simulation en cours...';
         hideStatus();
@@ -42,7 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         fetch('/api/simulation/execute', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ criteres: criteres })
         })
         .then(response => response.json())
         .then(data => {
@@ -199,32 +212,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayHistorique(distributions) {
         historyTableBody.innerHTML = '';
         
-        const groupedByDate = {};
-        distributions.forEach(d => {
-            const date = d.date_distribution;
-            if (!groupedByDate[date]) groupedByDate[date] = [];
-            groupedByDate[date].push(d);
+        if (!distributions || distributions.length === 0) {
+            historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;font-style:italic;">Aucune distribution enregistrée</td></tr>';
+            return;
+        }
+        
+        // Trier par date de distribution (plus récent en premier)
+        distributions.sort((a, b) => {
+            return new Date(b.date_distribution) - new Date(a.date_distribution);
         });
         
-        const dates = Object.keys(groupedByDate).sort().reverse();
-        dates.forEach(date => {
-            const dists = groupedByDate[date];
-            const affectations = dists.map(d => {
-                const villeDon = d.ville_don || 'N/A';
-                return `${d.ville_besoin} (${d.besoin_type}, ${d.quantite_attribuee} unités) ← ${villeDon} (${d.don_type})`;
-            }).join('<br>');
-            
+        distributions.forEach(d => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${formatDate(date)}</td>
-                <td>${affectations}</td>
+                <td>${escapeHtml(d.ville_besoin || 'N/A')}</td>
+                <td>${escapeHtml(d.region_besoin || 'N/A')}</td>
+                <td>${escapeHtml(d.besoin_demande || d.besoin_type || 'N/A')} (${escapeHtml(d.besoin_type || 'N/A')})</td>
+                <td>${d.quantite_attribuee || 0}</td>
+                <td>${escapeHtml(d.don_demande || d.don_type || 'N/A')} (${escapeHtml(d.don_type || 'N/A')})</td>
+                <td>${formatDate(d.date_distribution)}</td>
             `;
             historyTableBody.appendChild(row);
         });
-        
-        if (dates.length === 0) {
-            historyTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;font-style:italic;">Aucune distribution enregistrée</td></tr>';
-        }
     }
     
     function formatDate(dateStr) {
