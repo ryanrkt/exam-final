@@ -56,6 +56,7 @@
                                             <th>Région</th>
                                             <th>Ville</th>
                                             <th>Type</th>
+                                            <th>Libellé</th>
                                             <th>Quantité</th>
                                             <th>Prix unitaire</th>
                                             <th>Montant total</th>
@@ -69,6 +70,7 @@
                                                 <td><?= htmlspecialchars($b['nom_region'] ?? '') ?></td>
                                                 <td><?= htmlspecialchars($b['nom_ville'] ?? '') ?></td>
                                                 <td><?= htmlspecialchars($b['type_besoin'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($b['demande'] ?? '') ?></td>
                                                 <td><?= htmlspecialchars($b['quantite'] ?? '') ?></td>
                                                 <td><?= number_format($b['prix_unitaire'] ?? 0, 2, ',', ' ') ?> Ar</td>
                                                 <td><?= number_format($b['montant_total'] ?? 0, 2, ',', ' ') ?> Ar</td>

@@ -9,18 +9,19 @@ class Besoin {
         $this->db = $db;
     }
     
-    public function create($id_ville, $id_type_besoin, $quantite, $prix_unitaire) {
+    public function create($id_ville, $id_type_besoin, $quantite, $prix_unitaire, $demande = '') {
         $stmt = $this->db->prepare("
-            INSERT INTO BESOINS (id_ville, id_type_besoin, quantite, prix_unitaire) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO BESOINS (id_ville, id_type_besoin, quantite, prix_unitaire, demande) 
+            VALUES (?, ?, ?, ?, ?)
         ");
-        return $stmt->execute([$id_ville, $id_type_besoin, $quantite, $prix_unitaire]);
+        return $stmt->execute([$id_ville, $id_type_besoin, $quantite, $prix_unitaire, $demande]);
     }
     
     public function getAll() {
         $stmt = $this->db->query("
             SELECT b.*, v.nom_ville, r.nom_region, t.libelle as type_besoin,
-                   (b.quantite * b.prix_unitaire) as montant_total
+                   (b.quantite * b.prix_unitaire) as montant_total,
+                   b.demande
             FROM BESOINS b
             JOIN VILLES v ON b.id_ville = v.id_ville
             JOIN REGION r ON v.id_region = r.id_region
@@ -46,7 +47,8 @@ class Besoin {
     public function getById($id) {
         $stmt = $this->db->prepare("
             SELECT b.*, v.nom_ville, r.nom_region, t.libelle as type_besoin,
-                   (b.quantite * b.prix_unitaire) as montant_total
+                   (b.quantite * b.prix_unitaire) as montant_total,
+                   b.demande
             FROM BESOINS b
             JOIN VILLES v ON b.id_ville = v.id_ville
             JOIN REGION r ON v.id_region = r.id_region
@@ -57,13 +59,13 @@ class Besoin {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    public function update($id, $id_ville, $id_type_besoin, $quantite, $prix_unitaire) {
+    public function update($id, $id_ville, $id_type_besoin, $quantite, $prix_unitaire, $demande = '') {
         $stmt = $this->db->prepare("
             UPDATE BESOINS 
-            SET id_ville = ?, id_type_besoin = ?, quantite = ?, prix_unitaire = ?
+            SET id_ville = ?, id_type_besoin = ?, quantite = ?, prix_unitaire = ?, demande = ?
             WHERE id_besoin = ?
         ");
-        return $stmt->execute([$id_ville, $id_type_besoin, $quantite, $prix_unitaire, $id]);
+        return $stmt->execute([$id_ville, $id_type_besoin, $quantite, $prix_unitaire, $demande, $id]);
     }
     
     public function delete($id) {

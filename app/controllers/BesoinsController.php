@@ -30,7 +30,8 @@ class BesoinsController
                 'id_ville' => $_POST['id_ville'],
                 'id_type_besoin' => $_POST['id_type_besoin'],
                 'quantite' => $_POST['quantite'],
-                'prix_unitaire' => $_POST['prix_unitaire']
+                'prix_unitaire' => $_POST['prix_unitaire'],
+                'demande' => $_POST['label'] ?? ''
             ];
 
             $model = new Besoin(Flight::db());
@@ -38,7 +39,8 @@ class BesoinsController
                 $data['id_ville'],
                 $data['id_type_besoin'],
                 $data['quantite'],
-                $data['prix_unitaire']
+                $data['prix_unitaire'],
+                $data['demande']
             );
 
             Flight::redirect('/besoins');
@@ -80,7 +82,8 @@ class BesoinsController
                 'id_ville' => $_POST['id_ville'],
                 'id_type_besoin' => $_POST['id_type_besoin'],
                 'quantite' => $_POST['quantite'],
-                'prix_unitaire' => $_POST['prix_unitaire']
+                'prix_unitaire' => $_POST['prix_unitaire'],
+                'demande' => $_POST['label'] ?? ''
             ];
 
             $model = new Besoin(Flight::db());
@@ -89,7 +92,8 @@ class BesoinsController
                 $data['id_ville'],
                 $data['id_type_besoin'],
                 $data['quantite'],
-                $data['prix_unitaire']
+                $data['prix_unitaire'],
+                $data['demande']
             );
 
             Flight::redirect('/besoins');

@@ -42,6 +42,10 @@
                                         <?php endif; ?>
                                     </select>
                                 </div>
+                                <div class="col-12">
+                                    <label for="label">Libellé (ex: Riz, Huile, Tôle...)</label>
+                                    <input type="text" name="label" id="label" value="<?= htmlspecialchars($besoin['demande'] ?? '') ?>" placeholder="Libellé" required />
+                                </div>
                                 <div class="col-6">
                                     <label for="quantite">Quantité</label>
                                     <input type="number" name="quantite" id="quantite" value="<?= htmlspecialchars($besoin['quantite']) ?>" required />
