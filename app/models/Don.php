@@ -14,6 +14,7 @@ class Don {
             SELECT 
                 d.id_don,
                 d.demande,
+                d.id_ville,
                 d.id_type_besoin,
                 d.quantite,
                 d.montant,
@@ -21,16 +22,12 @@ class Don {
                 t.libelle as type_besoin,
                 v.nom_ville,
                 r.nom_region,
-                COALESCE(dist.quantite_attribuee, 0) as quantite_distribuee,
-                dist.id_distribution,
-                dist.date_distribution
+                COALESCE((SELECT SUM(dist.quantite_attribuee) FROM DISTRIBUTIONS dist WHERE dist.id_don = d.id_don), 0) as quantite_distribuee
             FROM DONS d
             LEFT JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
-            LEFT JOIN DISTRIBUTIONS dist ON d.id_don = dist.id_don
-            LEFT JOIN BESOINS b ON dist.id_besoin = b.id_besoin
-            LEFT JOIN VILLES v ON b.id_ville = v.id_ville
+            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
             LEFT JOIN REGION r ON v.id_region = r.id_region
-            ORDER BY d.date_don DESC, d.id_don, dist.id_distribution DESC
+            ORDER BY d.date_don DESC, d.id_don DESC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -13,12 +13,10 @@ class DonController {
         $donModel = new Don($db);
         $dons = $donModel->getAll();
         
-        $villeModel = new Ville($db);
         $typeBesoinModel = new TypeBesoin($db);
         
         Flight::render('dons/index', [
             'dons' => $dons,
-            'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
@@ -28,8 +26,9 @@ class DonController {
             $db = Flight::db();
             $donModel = new Don($db);
             
-            $id_ville = isset($_POST['id_ville']) && $_POST['id_ville'] !== '' ? $_POST['id_ville'] : null;
-            $demande = $_POST['demande'] ?? ''; // Nouveau champ
+            // La ville sera attribuée automatiquement lors du dispatch
+            $id_ville = null;
+            $demande = $_POST['demande'] ?? '';
             $id_type_besoin = $_POST['id_type_besoin'];
             $quantite = $_POST['quantite'];
             $montant = $_POST['montant'];
@@ -51,12 +50,10 @@ class DonController {
             return;
         }
         
-        $villeModel = new Ville($db);
         $typeBesoinModel = new TypeBesoin($db);
         
         Flight::render('dons/edit', [
             'don' => $don,
-            'villes' => $villeModel->getAll(),
             'types_besoin' => $typeBesoinModel->getAll()
         ]);
     }
@@ -66,7 +63,9 @@ class DonController {
             $db = Flight::db();
             $donModel = new Don($db);
             
-            $id_ville = isset($_POST['id_ville']) && $_POST['id_ville'] !== '' ? $_POST['id_ville'] : null;
+            // Conserver la ville existante (attribuée par le dispatch)
+            $don = $donModel->getById($id);
+            $id_ville = $don['id_ville'] ?? null;
             $demande = $_POST['demande'] ?? '';
             $id_type_besoin = $_POST['id_type_besoin'];
             $quantite = $_POST['quantite'];

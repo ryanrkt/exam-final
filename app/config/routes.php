@@ -182,6 +182,11 @@ $router->group('', function (Router $router) use ($app) {
         $controller->executeSimulation();
     });
     
+    $router->post('/api/simulation/valider', function () use ($app) {
+        $controller = new SimulationController();
+        $controller->validerSimulation();
+    });
+    
     $router->get('/api/simulation/historique', function () use ($app) {
         $controller = new SimulationController();
         $controller->getHistorique();

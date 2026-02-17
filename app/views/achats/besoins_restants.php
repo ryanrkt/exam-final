@@ -33,6 +33,33 @@
                         <p>Frais d'achat : <strong><?= $frais_pourcentage ?>%</strong></p>
                     </div>
 
+                    <!-- Filtre par ville -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form method="GET" action="/achats/besoins-restants" class="row align-items-end">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="bi bi-funnel"></i> Filtrer par ville</label>
+                                    <select name="ville" class="form-select">
+                                        <option value="">Toutes les villes</option>
+                                        <?php if (!empty($villes)): ?>
+                                            <?php foreach ($villes as $v): ?>
+                                                <option value="<?= $v['id_ville'] ?>" <?= (isset($filter_ville) && $filter_ville == $v['id_ville']) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($v['nom_ville']) ?> (<?= htmlspecialchars($v['nom_region']) ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrer</button>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="/achats/besoins-restants" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                     <!-- Dons en argent disponibles -->
                     <?php if (empty($dons_argent)): ?>
                         <div class="alert alert-danger">
@@ -192,19 +219,20 @@
         </div>
     </div>
 
-    <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script nonce="<?= Flight::get('csp_nonce') ?>">
         (function() {
             'use strict';
             
-            console.log('Script initialisé');
+            console.log('✅ Script besoins_restants.php initialisé');
+            console.log('✅ Bootstrap disponible:', typeof bootstrap !== 'undefined');
             
             const FRAIS_POURCENTAGE = <?= $frais_pourcentage ?>;
             let modalInstance = null;
             
             // Initialisation au chargement du DOM
             document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM chargé');
+                console.log('✅ DOM chargé');
                 
                 // Initialiser le modal Bootstrap
                 const modalElement = document.getElementById('modalAchat');

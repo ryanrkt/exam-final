@@ -76,7 +76,7 @@
                                                 <td><?= number_format($b['montant_total'] ?? 0, 2, ',', ' ') ?> Ar</td>
                                                 <td>
                                                     <a href="/besoins/edit/<?= $b['id_besoin'] ?>" class="button small">Modifier</a>
-                                                    <a href="/besoins/delete/<?= $b['id_besoin'] ?>" class="button small" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce besoin ?')">Supprimer</a>
+                                                    <a href="/besoins/delete/<?= $b['id_besoin'] ?>" class="button small btn-delete" data-message="Êtes-vous sûr de vouloir supprimer ce besoin ?">Supprimer</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -96,5 +96,16 @@
 
         </div>
         <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>">
+            // Confirmation pour les boutons supprimer
+            document.querySelectorAll('.btn-delete').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    const message = this.getAttribute('data-message');
+                    if (!confirm(message)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

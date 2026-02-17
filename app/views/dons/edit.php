@@ -28,6 +28,10 @@
                   <?php endif; ?>
                 </select>
               </div>
+              <div class="col-12">
+                <label for="demande">Libellé du don</label>
+                <input type="text" name="demande" id="demande" value="<?= htmlspecialchars($don['demande'] ?? '') ?>" placeholder="Ex: Riz, Huile..." required />
+              </div>
               <div class="col-6">
                 <label for="quantite">Quantité</label>
                 <input type="number" name="quantite" id="quantite" value="<?= htmlspecialchars($don['quantite']) ?>" required />
