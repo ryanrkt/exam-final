@@ -16,92 +16,193 @@ class SimulationController {
     }
     
     /**
-     * Exécuter la simulation de distribution automatique
-     * 
-     * Logique:
-     * 1. Récupérer tous les besoins non satisfaits (triés par date_creation ASC - ordre chronologique)
-     * 2. Récupérer tous les dons disponibles (triés par date_don ASC)
-     * 3. Pour chaque besoin (dans l'ordre chronologique):
-     *    - Chercher n'importe quel don disponible (peu importe le type)
-     *    - La ville qui a demandé en premier reçoit le don en priorité
-     * 4. Créer une distribution avec la quantité appropriée
+     * Exécuter la simulation de distribution (PREVIEW - ne commit pas en BD)
+     * Retourne le résultat en JSON pour affichage
      */
     public function executeSimulation() {
         $db = Flight::db();
         
         $besoinModel = new Besoin($db);
         $donModel = new Don($db);
-        $distributionModel = new Distribution($db);
         
         try {
-            // Récupérer les besoins non satisfaits (triés par ordre chronologique)
             $besoins = $besoinModel->getBesoinsNonSatisfaits();
-            
-            // Récupérer les dons disponibles
             $dons = $donModel->getDonsDisponibles();
             
-            $distributions_effectuees = [];
-            $date_distribution = date('Y-m-d');
+            $distributions_prevues = $this->calculerDistributions($besoins, $dons);
             
-            // Pour chaque besoin (dans l'ordre chronologique)
-            foreach ($besoins as $besoin) {
-                $quantite_besoin_restant = $besoin['quantite_restante'];
-                
-                // Chercher n'importe quel don disponible
-                foreach ($dons as &$don) {
-                    // Vérifier si le don a de la quantité disponible
-                    if ($don['quantite_disponible'] <= 0) {
-                        continue; // Pas de quantité disponible
-                    }
-                    
-                    // Calculer la quantité à distribuer
-                    $quantite_a_distribuer = min($quantite_besoin_restant, $don['quantite_disponible']);
-                    
-                    if ($quantite_a_distribuer > 0) {
-                        // Créer la distribution
-                        $distributionModel->create(
-                            $besoin['id_besoin'],
-                            $don['id_don'],
-                            $quantite_a_distribuer,
-                            $date_distribution
-                        );
-                        
-                        // Mettre à jour les quantités
-                        $don['quantite_disponible'] -= $quantite_a_distribuer;
-                        $quantite_besoin_restant -= $quantite_a_distribuer;
-                        
-                        // Enregistrer la distribution effectuée
-                        $distributions_effectuees[] = [
-                            'besoin' => $besoin['type_besoin'],
-                            'ville_besoin' => $besoin['nom_ville'],
-                            'quantite' => $quantite_a_distribuer,
-                            'don' => $don['type_besoin'],
-                            'ville_don' => $don['nom_ville'] ?? 'Non assignée',
-                            'date_besoin' => $besoin['date_creation'],
-                            'date_don' => $don['date_don']
-                        ];
-                        
-                        // Si le besoin est complètement satisfait, passer au suivant
-                        if ($quantite_besoin_restant <= 0) {
-                            break;
-                        }
-                    }
-                }
-            }
+            // Stocker en session pour validation ultérieure
+            session_start();
+            $_SESSION['simulation_distributions'] = $distributions_prevues;
+            $_SESSION['simulation_date'] = date('Y-m-d');
             
             Flight::json([
                 'success' => true,
-                'message' => count($distributions_effectuees) . ' distributions effectuées',
-                'distributions' => $distributions_effectuees,
-                'date' => $date_distribution
+                'message' => count($distributions_prevues) . ' distributions prévues (non encore validées)',
+                'distributions' => $distributions_prevues,
+                'date' => date('Y-m-d'),
+                'preview' => true
             ]);
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Flight::json([
                 'success' => false,
                 'message' => 'Erreur lors de la simulation: ' . $e->getMessage()
             ], 500);
         }
+    }
+    
+    /**
+     * Valider et enregistrer les distributions simulées en BD
+     */
+    public function validerSimulation() {
+        $db = Flight::db();
+        $distributionModel = new Distribution($db);
+        $besoinModel = new Besoin($db);
+        $donModel = new Don($db);
+        
+        try {
+            // Recalculer les distributions (fresh data)
+            $besoins = $besoinModel->getBesoinsNonSatisfaits();
+            $dons = $donModel->getDonsDisponibles();
+            
+            $distributions = $this->calculerDistributions($besoins, $dons);
+            $date_distribution = date('Y-m-d');
+            
+            $db->beginTransaction();
+            
+            foreach ($distributions as $dist) {
+                $distributionModel->create(
+                    $dist['id_besoin'],
+                    $dist['id_don'],
+                    $dist['quantite'],
+                    $date_distribution
+                );
+            }
+            
+            $db->commit();
+            
+            // Vider la session
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                unset($_SESSION['simulation_distributions']);
+            }
+            
+            Flight::json([
+                'success' => true,
+                'message' => count($distributions) . ' distributions validées et enregistrées !',
+                'distributions' => $distributions,
+                'date' => $date_distribution
+            ]);
+            
+        } catch (\Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            Flight::json([
+                'success' => false,
+                'message' => 'Erreur lors de la validation: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Algorithme de distribution équitable par tour
+     */
+    private function calculerDistributions($besoins, $dons) {
+        $distributions = [];
+        $villes_servies_ce_tour = [];
+        $index_don = 0;
+        
+        while ($index_don < count($dons)) {
+            // Chercher un don disponible
+            $don_idx = null;
+            for ($i = $index_don; $i < count($dons); $i++) {
+                if ($dons[$i] && isset($dons[$i]['quantite_disponible']) && $dons[$i]['quantite_disponible'] > 0) {
+                    $don_idx = $i;
+                    break;
+                }
+            }
+            
+            if ($don_idx === null) break;
+            
+            $don = $dons[$don_idx];
+            
+            // Chercher besoin même type, ville non servie
+            $besoin_idx = null;
+            foreach ($besoins as $idx => $besoin) {
+                if (!$besoin || !isset($besoin['quantite_restante']) || $besoin['quantite_restante'] <= 0) continue;
+                if (in_array($besoin['id_ville'], $villes_servies_ce_tour)) continue;
+                if ($besoin['id_type_besoin'] == $don['id_type_besoin']) {
+                    $besoin_idx = $idx;
+                    break;
+                }
+            }
+            
+            // Sinon n'importe quel besoin d'une ville non servie
+            if ($besoin_idx === null) {
+                foreach ($besoins as $idx => $besoin) {
+                    if (!$besoin || !isset($besoin['quantite_restante']) || $besoin['quantite_restante'] <= 0) continue;
+                    if (in_array($besoin['id_ville'], $villes_servies_ce_tour)) continue;
+                    $besoin_idx = $idx;
+                    break;
+                }
+            }
+            
+            // Si pas trouvé, réinitialiser le tour
+            if ($besoin_idx === null) {
+                $has_remaining = false;
+                foreach ($besoins as $b) {
+                    if ($b && isset($b['quantite_restante']) && $b['quantite_restante'] > 0) {
+                        $has_remaining = true;
+                        break;
+                    }
+                }
+                
+                if (!$has_remaining) break;
+                
+                $villes_servies_ce_tour = [];
+                
+                foreach ($besoins as $idx => $besoin) {
+                    if ($besoin && isset($besoin['quantite_restante']) && $besoin['quantite_restante'] > 0) {
+                        $besoin_idx = $idx;
+                        break;
+                    }
+                }
+            }
+            
+            if ($besoin_idx === null) break;
+            
+            $besoin = $besoins[$besoin_idx];
+            $quantite = min($besoin['quantite_restante'], $don['quantite_disponible']);
+            
+            if ($quantite > 0) {
+                $distributions[] = [
+                    'id_besoin' => $besoin['id_besoin'],
+                    'id_don' => $don['id_don'],
+                    'besoin' => $besoin['type_besoin'],
+                    'besoin_demande' => $besoin['demande'] ?? '',
+                    'ville_besoin' => $besoin['nom_ville'],
+                    'region_besoin' => $besoin['nom_region'],
+                    'quantite' => $quantite,
+                    'don' => $don['type_besoin'],
+                    'don_demande' => $don['demande'] ?? '',
+                    'date_besoin' => $besoin['date_creation'],
+                    'date_don' => $don['date_don']
+                ];
+                
+                $dons[$don_idx]['quantite_disponible'] -= $quantite;
+                $besoins[$besoin_idx]['quantite_restante'] -= $quantite;
+                $villes_servies_ce_tour[] = $besoin['id_ville'];
+                
+                if ($dons[$don_idx]['quantite_disponible'] <= 0) {
+                    $index_don = $don_idx + 1;
+                }
+            } else {
+                $index_don++;
+            }
+        }
+        
+        return $distributions;
     }
     
     /**
@@ -119,7 +220,7 @@ class SimulationController {
                 'distributions' => $distributions
             ]);
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Flight::json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de l\'historique: ' . $e->getMessage()
@@ -128,7 +229,7 @@ class SimulationController {
     }
     
     /**
-     * Réinitialiser toutes les distributions pour recommencer la simulation
+     * Réinitialiser toutes les distributions
      */
     public function resetDistributions() {
         $db = Flight::db();
@@ -139,10 +240,10 @@ class SimulationController {
             
             Flight::json([
                 'success' => true,
-                'message' => 'Toutes les distributions ont été supprimées. Vous pouvez relancer la simulation.'
+                'message' => 'Toutes les distributions ont été supprimées.'
             ]);
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Flight::json([
                 'success' => false,
                 'message' => 'Erreur lors de la réinitialisation: ' . $e->getMessage()

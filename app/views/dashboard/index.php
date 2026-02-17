@@ -632,8 +632,8 @@
         </div>
 
         <!-- Scripts -->
-        <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>">
             document.addEventListener('DOMContentLoaded', function() {
                 const regionFilter = document.getElementById('region_filter');
                 const villeFilter = document.getElementById('ville_filter');

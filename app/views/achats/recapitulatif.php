@@ -76,7 +76,7 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <button class="btn btn-primary btn-lg" onclick="actualiserRecap()">
+                        <button id="btnActualiser" class="btn btn-primary btn-lg">
                             <i class="bi bi-arrow-clockwise"></i> Actualiser
                         </button>
                     </div>
@@ -87,8 +87,11 @@
         <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
     </div>
 
-    <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>">
+        // Attacher l'événement au bouton
+        document.getElementById('btnActualiser').addEventListener('click', actualiserRecap);
+        
         async function actualiserRecap() {
             try {
                 const response = await fetch('/achats/recapitulatif', {

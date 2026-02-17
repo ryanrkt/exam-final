@@ -71,10 +71,10 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button class="btn btn-danger btn-lg" onclick="annulerSimulations()">
+                            <button id="btnAnnuler" class="btn btn-danger btn-lg">
                                 <i class="bi bi-x-circle"></i> Annuler
                             </button>
-                            <button class="btn btn-success btn-lg" onclick="validerSimulations()">
+                            <button id="btnValider" class="btn btn-success btn-lg">
                                 <i class="bi bi-check-circle"></i> Valider et Dispatcher
                             </button>
                         </div>
@@ -91,8 +91,20 @@
         <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
     </div>
 
-    <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>">
+        // Attacher les événements aux boutons
+        const btnValider = document.getElementById('btnValider');
+        const btnAnnuler = document.getElementById('btnAnnuler');
+        
+        if (btnValider) {
+            btnValider.addEventListener('click', validerSimulations);
+        }
+        
+        if (btnAnnuler) {
+            btnAnnuler.addEventListener('click', annulerSimulations);
+        }
+        
         async function validerSimulations() {
             if (!confirm('Confirmer la validation de tous les achats simulés ?')) return;
             

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Test Bouton Acheter</title>
+    <link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Test des boutons Acheter</h2>
+        <button class="btn btn-warning btn-acheter" 
+                data-id-besoin="1"
+                data-quantite="100"
+                data-prix="3500"
+                data-demande="Riz">
+            Acheter Test
+        </button>
+    </div>
+
+    <div class="modal fade" id="modalAchat" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Test Modal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalDemande">Test</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log('Test script chargé');
+        console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM ready');
+            
+            const modalEl = document.getElementById('modalAchat');
+            const modal = new bootstrap.Modal(modalEl);
+            console.log('Modal créé:', modal);
+            
+            const btn = document.querySelector('.btn-acheter');
+            console.log('Bouton trouvé:', btn);
+            
+            btn.addEventListener('click', function(e) {
+                console.log('CLIC DÉTECTÉ!');
+                alert('Bouton cliqué!');
+                modal.show();
+            });
+        });
+    </script>
+</body>
+</html>
