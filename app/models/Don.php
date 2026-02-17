@@ -17,9 +17,9 @@ class Don {
                 r.nom_region,
                 t.libelle as type_besoin
             FROM DONS d
-            JOIN VILLES v ON d.id_ville = v.id_ville
-            JOIN REGION r ON v.id_region = r.id_region
-            JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
+            LEFT JOIN VILLES v ON d.id_ville = v.id_ville
+            LEFT JOIN REGION r ON v.id_region = r.id_region
+            LEFT JOIN TYPE_BESOIN t ON d.id_type_besoin = t.id_type_besoin
             ORDER BY d.date_don DESC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -28,7 +28,7 @@ class DonController {
             $db = Flight::db();
             $donModel = new Don($db);
             
-            $id_ville = $_POST['id_ville'];
+            $id_ville = isset($_POST['id_ville']) && $_POST['id_ville'] !== '' ? $_POST['id_ville'] : null;
             $demande = $_POST['demande'] ?? ''; // Nouveau champ
             $id_type_besoin = $_POST['id_type_besoin'];
             $quantite = $_POST['quantite'];
@@ -66,7 +66,7 @@ class DonController {
             $db = Flight::db();
             $donModel = new Don($db);
             
-            $id_ville = $_POST['id_ville'];
+            $id_ville = isset($_POST['id_ville']) && $_POST['id_ville'] !== '' ? $_POST['id_ville'] : null;
             $demande = $_POST['demande'] ?? '';
             $id_type_besoin = $_POST['id_type_besoin'];
             $quantite = $_POST['quantite'];
