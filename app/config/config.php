@@ -21,6 +21,8 @@ date_default_timezone_set('UTC');
 
 // Error reporting level (E_ALL recommended for development)
 error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 // Character encoding
 if (function_exists('mb_internal_encoding') === true) {
@@ -45,8 +47,12 @@ if (empty($app) === true) {
 // You'll need to namespace your classes with "app\folder\" to include them properly
 $app->path(__DIR__ . $ds . '..' . $ds . '..');
 
+// Define BASE_URL constant for use in views
+// Change this to match your deployment URL (e.g., '/myapp/' if in subdirectory)
+define('BASE_URL', '/ETU004102/exam-final/');
+
 // Core config variables
-$app->set('flight.base_url', '/',);           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
+$app->set('flight.base_url', BASE_URL);           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
 $app->set('flight.case_sensitive', false);    // Set true for case sensitive routes. Default: false
 $app->set('flight.log_errors', true);         // Log errors to file. Recommended: true in production
 $app->set('flight.handle_errors', false);     // Let Tracy handle errors if false. Set true to use Flight's error handler
@@ -67,10 +73,10 @@ return [
 	 **************************************/
 	'database' => [
 		// MySQL Example:
-		'host'     => '127.0.0.1',      
-		'dbname'   => 'BNGRC',   
-		'user'     => 'root',  
-		'password' => '',  
+		'host'     => 'localhost',      
+		'dbname'   => 'db_s2_ETU004102',   
+		'user'     => 'ETU004102',  
+		'password' => 'rO2k0o6b',  
 
 		// SQLite Example:
 		// 'file_path' => __DIR__ . $ds . '..' . $ds . 'database.sqlite', // Path to SQLite file

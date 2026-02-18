@@ -1,5 +1,5 @@
 <header id="header">
-    <a href="/dashboard" class="logo"><strong>Tableau de Bord</strong> BNGRC</a>
+    <a href="<?= BASE_URL ?>dashboard" class="logo"><strong>Tableau de Bord</strong> BNGRC</a>
     <ul class="icons">
         <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
         <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>

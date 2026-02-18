@@ -3,8 +3,8 @@
 <head>
     <title>Récapitulatif - BNGRC</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style>
         .stat-card {
@@ -87,14 +87,16 @@
         <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
     </div>
 
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script nonce="<?= Flight::get('csp_nonce') ?>">
+        const BASE_URL = '<?= BASE_URL ?>';
+        
         // Attacher l'événement au bouton
         document.getElementById('btnActualiser').addEventListener('click', actualiserRecap);
         
         async function actualiserRecap() {
             try {
-                const response = await fetch('/achats/recapitulatif', {
+                const response = await fetch(BASE_URL + 'achats/recapitulatif', {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const data = await response.json();

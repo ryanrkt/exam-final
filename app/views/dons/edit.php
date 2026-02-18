@@ -4,7 +4,7 @@
     <title>Modifier Don - BNGRC</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
   </head>
   <body class="is-preload">
     <div id="wrapper">
@@ -14,7 +14,7 @@
           <header class="major">
             <h2>Modifier un don</h2>
           </header>
-          <form method="post" action="/dons/update/<?= $don['id_don'] ?>">
+          <form method="post" action="<?= BASE_URL ?>dons/update/<?= $don['id_don'] ?>">
             <div class="row gtr-uniform">
               <div class="col-6">
                 <label for="id_type_besoin">Type de besoin</label>
@@ -47,7 +47,7 @@
               <div class="col-12">
                 <ul class="actions">
                   <li><button class="button primary" type="submit">Enregistrer les modifications</button></li>
-                  <li><a href="/dons" class="button">Annuler</a></li>
+                  <li><a href="<?= BASE_URL ?>dons" class="button">Annuler</a></li>
                 </ul>
               </div>
             </div>
@@ -58,6 +58,6 @@
       <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
     </div>
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simple.js"></script>
   </body>
 </html>

@@ -4,7 +4,7 @@
     <title>Simulation - BNGRC</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
   </head>
   <body class="is-preload">
     <div id="wrapper">
@@ -145,7 +145,10 @@
       <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
     </div>
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simulation.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>">
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simple.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simulation.js"></script>
   </body>
 </html>

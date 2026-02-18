@@ -4,7 +4,7 @@
         <title>Modifier Besoin - BNGRC</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
+        <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
     </head>
     <body class="is-preload">
         <div id="wrapper">
@@ -16,7 +16,7 @@
                         <header class="major">
                             <h2>Modifier un besoin</h2>
                         </header>
-                        <form method="post" action="/besoins/update/<?= $besoin['id_besoin'] ?>">
+                        <form method="post" action="<?= BASE_URL ?>besoins/update/<?= $besoin['id_besoin'] ?>">
                             <div class="row gtr-uniform">
                                 <div class="col-6">
                                     <label for="id_ville">Ville</label>
@@ -57,7 +57,7 @@
                                 <div class="col-12">
                                     <ul class="actions">
                                         <li><button class="button primary" type="submit">Enregistrer les modifications</button></li>
-                                        <li><a href="/besoins" class="button">Annuler</a></li>
+                                        <li><a href="<?= BASE_URL ?>besoins" class="button">Annuler</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -70,6 +70,6 @@
             <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
         </div>
-        <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simple.js"></script>
     </body>
 </html>

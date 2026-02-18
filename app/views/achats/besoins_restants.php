@@ -4,8 +4,8 @@
     <title>Besoins Restants - BNGRC</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style nonce="<?= Flight::get('csp_nonce') ?>">
         body {
@@ -36,7 +36,7 @@
                     <!-- Filtre par ville -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <form method="GET" action="/achats/besoins-restants" class="row align-items-end">
+                            <form method="GET" action="<?= BASE_URL ?>achats/besoins-restants" class="row align-items-end">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold"><i class="bi bi-funnel"></i> Filtrer par ville</label>
                                     <select name="ville" class="form-select">
@@ -54,7 +54,7 @@
                                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrer</button>
                                 </div>
                                 <div class="col-md-3">
-                                    <a href="/achats/besoins-restants" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</a>
+                                    <a href="<?= BASE_URL ?>achats/besoins-restants" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</a>
                                 </div>
                             </form>
                         </div>
@@ -65,7 +65,7 @@
                         <div class="alert alert-danger">
                             <i class="bi bi-exclamation-triangle"></i> 
                             <strong>Aucun don en argent disponible !</strong>
-                            <a href="/dons" class="alert-link">Créer un don en argent</a>
+                            <a href="<?= BASE_URL ?>dons" class="alert-link">Créer un don en argent</a>
                         </div>
                     <?php else: ?>
                         <div class="alert alert-info">
@@ -219,11 +219,12 @@
         </div>
     </div>
 
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script nonce="<?= Flight::get('csp_nonce') ?>">
         (function() {
             'use strict';
             
+            const BASE_URL = '<?= BASE_URL ?>';
             console.log('✅ Script besoins_restants.php initialisé');
             console.log('✅ Bootstrap disponible:', typeof bootstrap !== 'undefined');
             
@@ -322,7 +323,7 @@
                 }
                 
                 try {
-                    const response = await fetch('/achats/simuler', {
+                    const response = await fetch(BASE_URL + 'achats/simuler', {
                         method: 'POST',
                         body: formData
                     });
@@ -335,7 +336,7 @@
                     if (data.success) {
                         alert('✅ ' + data.message);
                         if (modalInstance) modalInstance.hide();
-                        window.location.href = '/achats/simulation';
+                        window.location.href = BASE_URL + 'achats/simulation';
                     } else {
                         alert('❌ ' + data.message);
                     }

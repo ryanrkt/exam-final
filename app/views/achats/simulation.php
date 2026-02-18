@@ -3,8 +3,8 @@
 <head>
     <title>Simulation des Achats - BNGRC</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 </head>
 <body>
@@ -81,7 +81,7 @@
                     <?php else: ?>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i> Aucune simulation en cours.
-                            <a href="/achats/besoins-restants" class="alert-link">Créer des achats</a>
+                            <a href="<?= BASE_URL ?>achats/besoins-restants" class="alert-link">Créer des achats</a>
                         </div>
                     <?php endif; ?>
 

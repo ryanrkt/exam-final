@@ -4,8 +4,8 @@
         <title>Tableau de Bord - BNGRC</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
+        <link rel="stylesheet" href="<?= BASE_URL ?>assets/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
         <style>
             :root {
@@ -348,7 +348,7 @@
                                 <i class="bi bi-funnel"></i>
                                 Filtres de recherche
                             </h5>
-                            <form method="GET" action="/dashboard" id="filterForm">
+                            <form method="GET" action="<?= BASE_URL ?>dashboard" id="filterForm">
                                 <div class="row">
                                     <div class="col-md-3 mb-3 mb-md-0">
                                         <label for="region_filter" class="form-label fw-bold">
@@ -408,7 +408,7 @@
                                             <button type="submit" class="btn btn-primary btn-lg">
                                                 <i class="bi bi-search"></i> Filtrer
                                             </button>
-                                            <a href="/dashboard" class="btn btn-outline-secondary">
+                                            <a href="<?= BASE_URL ?>dashboard" class="btn btn-outline-secondary">
                                                 <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
                                             </a>
                                         </div>
@@ -632,7 +632,7 @@
         </div>
 
         <!-- Scripts -->
-        <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script nonce="<?= Flight::get('csp_nonce') ?>">
             document.addEventListener('DOMContentLoaded', function() {
                 const regionFilter = document.getElementById('region_filter');

@@ -4,7 +4,7 @@
     <title>Dons - BNGRC</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
   </head>
   <body class="is-preload">
     <div id="wrapper">
@@ -12,7 +12,7 @@
         <?php include __DIR__ . '/../layouts/header.php'; ?>
         <section>
           <header class="major"><h2>Enregistrer un don</h2></header>
-          <form id="donation-form" method="post" action="/dons/create">
+          <form id="donation-form" method="post" action="<?= BASE_URL ?>dons/create">
             <div class="row gtr-uniform">
               <div class="col-6">
                 <select name="id_type_besoin" required>
@@ -65,8 +65,8 @@
                       <td><?= number_format($don['montant'] ?? 0, 2, ',', ' ') ?> Ar</td>
                       <td><?= htmlspecialchars($don['date_don'] ?? '') ?></td>
                       <td>
-                        <a href="/dons/edit/<?= $don['id_don'] ?>" class="button small">Modifier</a>
-                        <a href="/dons/delete/<?= $don['id_don'] ?>" class="button small btn-delete" data-message="Êtes-vous sûr de vouloir supprimer ce don ?">Supprimer</a>
+                        <a href="<?= BASE_URL ?>dons/edit/<?= $don['id_don'] ?>" class="button small">Modifier</a>
+                        <a href="<?= BASE_URL ?>dons/delete/<?= $don['id_don'] ?>" class="button small btn-delete" data-message="Êtes-vous sûr de vouloir supprimer ce don ?">Supprimer</a>
                       </td>
                     </tr>
                   <?php endforeach; ?>
@@ -82,7 +82,7 @@
       <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
 
     </div>
-    <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+    <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simple.js"></script>
     <script nonce="<?= Flight::get('csp_nonce') ?>">
         // Confirmation pour les boutons supprimer
         document.querySelectorAll('.btn-delete').forEach(function(btn) {

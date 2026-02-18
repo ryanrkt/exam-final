@@ -4,7 +4,7 @@
         <title>Besoins - BNGRC</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
+        <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css" />
     </head>
     <body class="is-preload">
         <div id="wrapper">
@@ -14,7 +14,7 @@
 
                     <section>
                         <header class="major"><h2>Ajouter un besoin</h2></header>
-                            <form id="need-form" method="post" action="/besoins/create">
+                            <form id="need-form" method="post" action="<?= BASE_URL ?>besoins/create">
                                 <div class="row gtr-uniform">
                                     <div class="col-6">
                                         <select name="id_ville" required>
@@ -75,8 +75,8 @@
                                                 <td><?= number_format($b['prix_unitaire'] ?? 0, 2, ',', ' ') ?> Ar</td>
                                                 <td><?= number_format($b['montant_total'] ?? 0, 2, ',', ' ') ?> Ar</td>
                                                 <td>
-                                                    <a href="/besoins/edit/<?= $b['id_besoin'] ?>" class="button small">Modifier</a>
-                                                    <a href="/besoins/delete/<?= $b['id_besoin'] ?>" class="button small btn-delete" data-message="Êtes-vous sûr de vouloir supprimer ce besoin ?">Supprimer</a>
+                                                    <a href="<?= BASE_URL ?>besoins/edit/<?= $b['id_besoin'] ?>" class="button small">Modifier</a>
+                                                    <a href="<?= BASE_URL ?>besoins/delete/<?= $b['id_besoin'] ?>" class="button small btn-delete" data-message="Êtes-vous sûr de vouloir supprimer ce besoin ?">Supprimer</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -95,7 +95,7 @@
             
 
         </div>
-        <script nonce="<?= Flight::get('csp_nonce') ?>" src="/assets/js/simple.js"></script>
+        <script nonce="<?= Flight::get('csp_nonce') ?>" src="<?= BASE_URL ?>assets/js/simple.js"></script>
         <script nonce="<?= Flight::get('csp_nonce') ?>">
             // Confirmation pour les boutons supprimer
             document.querySelectorAll('.btn-delete').forEach(function(btn) {
